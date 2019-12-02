@@ -13,17 +13,29 @@ class AOC
     end
   end
 
-  # compute needed fuel will calculate the amount of fuel needed by all modules
-  def compute_needed_fuel()
-    # init
-    fuel = 0
-    # loop over modules
-    @modules.each do |elem|
-      # divide by 3, then floor, then -2
-      fuel += (elem/3).floor - 2
+  # calculate all fuel for all modules
+  def all_fuel(full = false)
+    total = @modules.reduce(0) do |acc, element|
+    acc + compute_fuel_full(element, full)
     end
-    # return result
-    fuel
+    total
+  end
+
+  # compute fuel for one module
+  def compute_fuel(element)
+    (element/3).floor - 2
+  end
+
+  # compute needed fuel, + fuel for the fuel !
+  def compute_fuel_full(fuel, full = false)
+    # final condition
+    return 0 if fuel < 7
+    # short mode
+    needed = compute_fuel(fuel)
+    # full mode
+    needed += compute_fuel_full(needed, full) if full
+    # return final value
+    needed
   end
 
 end
@@ -34,9 +46,13 @@ if __FILE__ == $0
   # init
   aoc = AOC.new
 
-  # compute
-  fuel = aoc.compute_needed_fuel
+  # short version
+  fuel = aoc.all_fuel(false)
 
-  # print
-  print "#{fuel}\n"
+  print "Fuel (short): #{fuel}\n"
+
+  # full version
+  fuel = aoc.all_fuel(true)
+
+  print "Fuel (full): #{fuel}\n"
 end
