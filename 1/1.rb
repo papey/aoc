@@ -15,10 +15,9 @@ class AOC
 
   # calculate all fuel for all modules
   def all_fuel(full = false)
-    total = @modules.reduce(0) do |acc, element|
+    @modules.reduce(0) do |acc, element|
     acc + compute_fuel_full(element, full)
     end
-    total
   end
 
   # compute fuel for one module
