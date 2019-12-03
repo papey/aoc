@@ -21,12 +21,12 @@ x = x.split(",")
 # Translate a move to a computable direction
 delta = {"R": (0, 1), "L": (0, -1), "U": (1, 1), "D": (1, -1)}
 
-"""
-compute both position and steps for a point in the grid
-"""
-
 
 def compute_points(move, pos, steps, path):
+    """
+    compute both position and steps for a point in the grid
+    """
+
     # split move code, first part is direction, second part is distance
     direc, dist = move[0], int(move[1:])
     # translate this direction to real usable values using delta directory
@@ -45,12 +45,11 @@ def compute_points(move, pos, steps, path):
     return steps
 
 
-"""
-compute both position and steps for a wire (or a set of points)
-"""
-
-
 def compute_wire(w):
+    """
+    compute both position and steps for a wire (or a set of points)
+    """
+
     # position in the grid, updated as we run the wire
     pos = [0, 0]
     # dict containing point position and associated steps to reach it
