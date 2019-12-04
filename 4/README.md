@@ -23,4 +23,5 @@ Language used : [Elixir](https://elixir-lang.org/)
 
     iex
     iex> c "4.ex"
-    iex> AOC.run "input/in"
+    iex> AOC.run("input/in", false)
+    iex> AOC.run("input/in", true)

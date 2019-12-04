@@ -1,11 +1,11 @@
 defmodule AOC do
-  def run(input) do
+  def run(input, extended) do
     [begin, ending] = read_input(input)
 
     # for possible password
     begin..ending
     # Check if it's a valid password
-    |> Enum.map(fn current -> valid_password?(current) end)
+    |> Enum.map(fn current -> valid_password?(current, extended) end)
     |> Enum.filter(fn e -> e == true end)
     |> Enum.count()
   end
@@ -24,7 +24,7 @@ defmodule AOC do
   end
 
   # Check if it's a valid password, return true or false
-  def valid_password?(password) do
+  def valid_password?(password, extended) do
     # First case, all digits are the same
     # Convert to string, split each digit to an array
 
@@ -37,8 +37,10 @@ defmodule AOC do
       # to array of ints
       |> Enum.map(fn e -> String.to_integer(e) end)
 
-    # check all the rules
-    first_rule?(data) && second_rule?(data)
+    case extended do
+      false -> first_rule?(data) && second_rule?(data)
+      true -> first_rule?(data) && second_rule?(data) && final_rule?(data)
+    end
   end
 
   # Ensure there is two adjacent same digit in the number
@@ -67,5 +69,11 @@ defmodule AOC do
       [_] ->
         true
     end)
+  end
+
+  # Ensure there is at least only one pair of two digits
+  def final_rule?(password) do
+    Enum.chunk_every([:burp | password], 4, 1)
+    |> Enum.any?(fn [a, b, c | d] -> a != b && b == c && [c] != d end)
   end
 end
