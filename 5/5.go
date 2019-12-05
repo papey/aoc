@@ -79,8 +79,8 @@ func memToInt(mem string) []int {
 	memory := make([]int, len(data))
 
 	// convert all elements
-	for index := 0; index < len(data); index++ {
-		convert, err := strconv.Atoi(data[index])
+	for index, val := range data {
+		convert, err := strconv.Atoi(val)
 		if err != nil {
 			return nil
 		}
