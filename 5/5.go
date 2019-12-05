@@ -55,7 +55,7 @@ func exec(mem string, init string) error {
 		return err
 	}
 
-	// verifyprint result
+	// verify print result
 	err = verify(buffer)
 	if err != nil {
 		return err
