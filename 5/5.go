@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// compute
-	err = exec(string(mem), os.Args[2])
+	err = exec(strings.TrimSpace(string(mem)), os.Args[2])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -141,6 +141,49 @@ func run(mem []int, input int) (buffer []int, err error) {
 			// OP, MODE = 2
 			index += 2
 			break
+		case 5:
+			// jump-if-true
+			p1 := getParam(mem, ops[1], index+1)
+			if p1 != 0 {
+				index = getParam(mem, ops[2], index+2)
+			} else {
+				index += 3
+			}
+			break
+		case 6:
+			// jump-if-false
+			p1 := getParam(mem, ops[1], index+1)
+			if p1 == 0 {
+				index = getParam(mem, ops[2], index+2)
+			} else {
+				index += 3
+			}
+			break
+		case 7:
+			// less
+			p1 := getParam(mem, ops[1], index+1)
+			p2 := getParam(mem, ops[2], index+2)
+			if p1 < p2 {
+				mem[mem[index+3]] = 1
+
+			} else {
+				mem[mem[index+3]] = 0
+			}
+			index += 4
+			break
+		case 8:
+			// equal
+			p1 := getParam(mem, ops[1], index+1)
+			p2 := getParam(mem, ops[2], index+2)
+			if p1 == p2 {
+				mem[mem[index+3]] = 1
+
+			} else {
+				mem[mem[index+3]] = 0
+			}
+			index += 4
+			break
+
 		}
 	}
 
