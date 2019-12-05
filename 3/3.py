@@ -5,7 +5,7 @@ import sys
 
 # Check args
 if len(sys.argv) != 2:
-    print("Santa if not happy, some of the arguments are missing")
+    print("Santa is not happy, some of the arguments are missing")
     sys.exit(1)
 
 # Open and read file
