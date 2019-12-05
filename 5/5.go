@@ -189,6 +189,7 @@ func run(mem []int, input int) (buffer []int, err error) {
 
 }
 
+// get an OP code, pad it using 0, split it to get op code, mode, and parameters
 func padOp(op int) []int {
 
 	ops := make([]int, 4)
