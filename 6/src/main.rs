@@ -35,16 +35,23 @@ fn main() {
     };
 
     // Compute from COM
-    let res = match compute_orbits(&orbs, "COM", 0) {
-        Ok(r) => r,
+    match compute_orbits(&orbs, "COM", 0) {
+        Ok(r) => println!("Result for part 1 : {}", r),
         Err(e) => {
             eprintln!("{}", e);
             process::exit(1);
         }
     };
 
-    // Print
-    println!("{}", res);
+    // Compute path from YOU to SAN
+    match compute_path(&orbs) {
+        // Ensure - 2 before print since YOU and SAN does not count in number of orbit jumps
+        Ok(r) => println!("Result for part 2 : {}", r - 2),
+        Err(e) => {
+            eprintln!("{}", e);
+            process::exit(1)
+        }
+    }
 }
 
 // create a graph from input using hashmaps
@@ -70,6 +77,18 @@ fn create_graph(input: &String) -> Result<HashMap<String, Vec<String>>, Box<dyn 
 
     // Return generated graph
     Ok(orbs)
+}
+
+// Inverse graph data
+fn flat(input: &HashMap<String, Vec<String>>) -> HashMap<String, String> {
+    let mut flatted: HashMap<String, String> = HashMap::new();
+
+    for (k, v) in input {
+        for e in v {
+            flatted.insert(e.clone(), k.clone());
+        }
+    }
+    flatted
 }
 
 // compute orbits
@@ -102,4 +121,56 @@ fn compute_orbits(
 
     // Sumup total + result
     Ok(res + total)
+}
+
+// compute path from san to me
+fn compute_path(orbs: &HashMap<String, Vec<String>>) -> Result<i32, AOCError> {
+    // Prepare an inverse
+    let flatted = flat(orbs);
+
+    // Compute distance between YOU and SAN orbits
+    Ok(distance(&flatted, String::from("YOU"), String::from("SAN")))
+}
+
+// Compute distance between to orbits
+fn distance(flatmap: &HashMap<String, String>, from: String, to: String) -> i32 {
+    // from list
+    let f = olist(&flatmap, from);
+    // to list
+    let t = olist(&flatmap, to);
+
+    // Move back from `from`
+    for (i, f) in f.iter().enumerate() {
+        // Move back from `to`
+        for (j, t) in t.iter().enumerate() {
+            // If paths cross
+            if f == t {
+                // return number of orbits jump from `from` + number of orbits jumps from `to`
+                return (i + j) as i32;
+            }
+        }
+    }
+
+    // Dead branch so return something fun
+    42
+}
+
+// List all orbits that are attach to the from parameter
+fn olist(flatmap: &HashMap<String, String>, from: String) -> Vec<String> {
+    // init data
+    let mut list = vec![from.clone()];
+    let mut orbit = from.as_str();
+
+    // While a path exists
+    while flatmap.contains_key(orbit) {
+        // Get next orbit
+        orbit = flatmap
+            .get(orbit)
+            .expect("Oh oh oh, shit, an expected orbit was not found");
+        // push next orbit to list
+        list.push(orbit.to_owned());
+    }
+
+    // return list
+    list
 }
