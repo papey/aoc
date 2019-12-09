@@ -170,3 +170,11 @@ res = verify(out)
 
 #  puts final result
 puts "Result, part 1 : " + res.to_s
+
+out = run memory, 2
+
+# verify and get final result
+res = verify(out)
+
+#  puts final result
+puts "Result, part 2 : " + res.to_s
