@@ -36,4 +36,4 @@ Language used : [Python](https://www.python.org/)
 
 ### Run
 
-    python 3.py
+    python 3.py input/in

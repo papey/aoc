@@ -32,4 +32,4 @@ Language used : [Crystal](https://crystal-lang.org/)
 
 ### Run
 
-    crystal run 2.cr
+    crystal run 2.cr -- input/in
