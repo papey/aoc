@@ -91,5 +91,4 @@ for _ in range(STEPS):
     update(positions, velocities)
 
 print("Result, part 1 : %d" %
-      (sum([nrj(positions[i], velocities[i]) for i in range(len(positions))])))
-
+      (sum((nrj(positions[i], velocities[i]) for i in range(len(positions))))))
