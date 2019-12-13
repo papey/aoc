@@ -18,8 +18,7 @@ reg = re.compile(r'<x=(-?\d+), y=(-?\d+), z=(-?\d+)>')
 
 # read input
 with open(sys.argv[1]) as file:
-    lines = file.readlines()
-    for l in lines:
+    for l in file.readlines():
         # init positions
         positions.append([int(x) for x in list(reg.findall(l)[0])])
 
