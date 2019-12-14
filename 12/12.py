@@ -14,7 +14,7 @@ if len(sys.argv) < 2:
 positions = []
 velocities = []
 
-reg = re.compile(r'<x=(-?\d+), y=(-?\d+), z=(-?\d+)>')
+reg = re.compile(r"<x=(-?\d+), y=(-?\d+), z=(-?\d+)>")
 
 # read input
 with open(sys.argv[1]) as file:
