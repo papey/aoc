@@ -2,6 +2,8 @@
 
 import sys
 import re
+from copy import deepcopy
+from math import gcd
 from itertools import combinations
 
 STEPS = 1000
@@ -24,6 +26,15 @@ with open(sys.argv[1]) as file:
 
 # init velocities to 0
 [velocities.append([0] * 3) for _ in positions]
+
+base = deepcopy(positions)
+
+
+def lcm(a, b):
+    """
+    compute lcm (least common multiple)
+    """
+    return a * b // gcd(a, b)
 
 
 def velocity(m1, m2, positions):
@@ -94,3 +105,57 @@ print(
     "Result, part 1 : %d"
     % (sum((nrj(positions[i], velocities[i]) for i in range(len(positions)))))
 )
+
+# each axis are independents
+steps = []
+
+# copy base positions
+positions = deepcopy(base)
+
+# axis selector
+axis = 0
+
+# find each axis repetition independently
+while len(steps) < 3:
+    # ticks equals 0
+    ticks = 0
+
+    # use this as current values, for selected axis
+    current_positions = [p[axis] for p in positions]
+    current_velocities = [0 for _ in positions]
+
+    # use this as a base values, for selected axis
+    from_positions = [p[axis] for p in positions]
+    from_velocities = [0 for _ in positions]
+
+    # tick and break
+    while True:
+        # do as before but on one axis only
+        # gravity
+        for m1, m2 in combinations(range(len(positions)), 2):
+            vel = compare(current_positions[m1], current_positions[m2])
+            current_velocities[m1] -= vel
+            current_velocities[m2] += vel
+
+        # update
+        for index, _ in enumerate(velocities):
+            current_positions[index] += current_velocities[index]
+
+        # increment steps for this axis
+        ticks += 1
+
+        # check if current positions and velocities are equals to original positions and velocities
+        if (
+            current_positions == from_positions
+            and current_velocities == from_velocities
+        ):
+            # add related axis value to steps array
+            steps.append(ticks)
+            # find next axis value
+            axis += 1
+            break
+
+# copute lcm for all values as tmp = lcm(x, y) then lcm(tmp, z)
+total = lcm(lcm(steps[0], steps[1]), steps[2])
+
+print("Result, part 2 : %d" % total)
