@@ -90,5 +90,7 @@ for _ in range(STEPS):
     gravity(positions, velocities)
     update(positions, velocities)
 
-print("Result, part 1 : %d" %
-      (sum((nrj(positions[i], velocities[i]) for i in range(len(positions))))))
+print(
+    "Result, part 1 : %d"
+    % (sum((nrj(positions[i], velocities[i]) for i in range(len(positions)))))
+)
