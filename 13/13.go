@@ -38,12 +38,18 @@ func main() {
 		mem[i], _ = strconv.ParseInt(c, 10, 0)
 	}
 
+	// free play
+	mem[0] = 2
+
 	// out
 	output := map[image.Point]int64{}
 
 	// input and output channels
 	in := make(chan int64, 1)
 	out := make(chan int64)
+
+	// pad position
+	pad := image.Point{0, 0}
 
 	// run in concurrency
 	go run(mem, in, out)
@@ -63,25 +69,32 @@ func main() {
 		// get tile
 		tile, ok := <-out
 
-		// fill output
+		// push tile to output
 		output[image.Point{int(x), int(y)}] = tile
-	}
 
-	// init counter
-	count := 0
+		switch tile {
+		// ball
+		case 4:
 
-	// count tiles
-	for _, v := range output {
-		// if equals to researched tiles
-		if v == 2 {
-			// increment
-			count++
+			if pad.X > int(x) {
+				// go L
+				in <- -1
+			} else if pad.X < int(x) {
+				// go R
+				in <- 1
+			} else {
+				// do not move
+				in <- 0
+			}
+		// pad
+		case 3:
+			// update pad position
+			pad = image.Point{int(x), int(y)}
 		}
-
 	}
 
 	// print result
-	fmt.Println(fmt.Sprintf("Result, part 1 : %d", count))
+	fmt.Println(fmt.Sprintf("Result, part 2 : %d", output[image.Point{-1, 0}]))
 
 }
 
