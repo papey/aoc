@@ -36,4 +36,4 @@ Language used : [Golang](https://golang.org/)
 
 ### Run
 
-    go run 13.go -- input/in
+    go run 13.go input/in
