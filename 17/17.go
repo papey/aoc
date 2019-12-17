@@ -2,10 +2,23 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
+)
+
+var (
+	up    = image.Point{0, -1}
+	down  = image.Point{0, 1}
+	left  = image.Point{-1, 0}
+	right = image.Point{1, 0}
+)
+
+var (
+	tr = map[image.Point]image.Point{up: right, right: down, down: left, left: up}
+	tl = map[image.Point]image.Point{up: left, left: down, down: right, right: up}
 )
 
 func main() {
@@ -60,6 +73,7 @@ func main() {
 	view := strings.Split(strings.TrimSpace(builder.String()), "\n")
 	w, h := len(view[0]), len(view)
 
+	// Part 1
 	res := 0
 
 	for i := 1; i+1 < h; i++ {
@@ -71,6 +85,154 @@ func main() {
 	}
 
 	fmt.Println(fmt.Sprintf("Result, part 1 : %d", res))
+
+	// Part 2
+	// Find uncompressed path
+	var robot image.Point
+	var dir image.Point
+
+	// find robot x and y and direction
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			switch view[y][x] {
+			case 'v':
+				robot.X = x
+				robot.Y = y
+				dir = down
+			case '^':
+				robot.X = x
+				robot.Y = y
+				dir = up
+			case '<':
+				robot.X = x
+				robot.Y = y
+				dir = left
+			case '>':
+				robot.X = x
+				robot.Y = y
+				dir = right
+			default:
+			}
+
+		}
+	}
+
+	var times []string
+	var moves []string
+	var concat []string
+	var turn string
+
+	// find the all path
+	for {
+		l := 0
+
+		for isValid(view, w, h, robot.Add(dir)) {
+			robot = robot.Add(dir)
+			l++
+		}
+
+		if l != 0 {
+			times = append(times, strconv.Itoa(l))
+			l = 0
+			moves = append(moves, turn)
+		}
+
+		if isValid(view, w, h, robot.Add(tl[dir])) {
+			turn = "L"
+			dir = tl[dir]
+		} else if isValid(view, w, h, robot.Add(tr[dir])) {
+			turn = "R"
+			dir = tr[dir]
+		} else {
+			break
+		}
+	}
+
+	for i := 0; i < len(moves); i++ {
+		cat := fmt.Sprintf("%s%s", moves[i], times[i])
+		concat = append(concat, cat)
+	}
+
+	fmt.Println("\nPartial result for part 2 (uncompressed path) :")
+	fmt.Println(fmt.Sprintf("\n%s\n", strings.Join(concat, ",")))
+
+	// check args
+	if len(os.Args) < 3 {
+		fmt.Println("\nPlease, compress path by hand and pass instructions as list in a text file as second program argument (check README.md and ./misc/COMPRESS.md if needed)")
+		os.Exit(0)
+	}
+
+	{
+
+		var output []int64
+
+		// Run for part 2
+		// get all codes from input
+		codes := strings.Split(strings.TrimSpace(string(input)), ",")
+
+		// read instruction data
+		instructions, err := ioutil.ReadFile(os.Args[2])
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		instructions = []byte(fmt.Sprintf("%s\nn\n", instructions))
+
+		// intcode computer memory
+		mem := map[int]int64{}
+
+		// use a map since memory can be discontinue
+		for i, c := range codes {
+			// into map
+			mem[i], _ = strconv.ParseInt(c, 10, 0)
+		}
+
+		// put robot on
+		mem[0] = 2
+
+		// input and output channels
+		in := make(chan int64, len(instructions))
+		out := make(chan int64)
+
+		// run the incode computer
+		go run(mem, in, out)
+
+		// push instructions
+		for _, c := range instructions {
+			in <- int64(c)
+		}
+
+		for {
+			value, ok := <-out
+			output = append(output, value)
+			if !ok {
+				break
+			}
+		}
+
+		fmt.Println(fmt.Sprintf("Result, part 2 : %d", maximum(output)))
+
+	}
+
+}
+
+// maximum will return maximum value found in an array
+func maximum(data []int64) int64 {
+	var max int64 = data[0]
+
+	for i := range data {
+		if data[i] >= max {
+			max = data[i]
+		}
+	}
+
+	return max
+}
+
+// isValid return true if "#" false otherwise
+func isValid(view []string, w int, h int, next image.Point) bool {
+	return next.X >= 0 && next.Y >= 0 && next.X < w && next.Y < h && view[next.Y][next.X] == '#'
 }
 
 // getAddr will get address using mod parameter and relative base
