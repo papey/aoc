@@ -14,6 +14,7 @@ if len(sys.argv) < 2:
 with open(sys.argv[1]) as file:
     grid = [e.rstrip("\n") for e in file.readlines()]
 
+
 def reachable(grid, start, keys):
     """
     Get all reachable keys from current position
@@ -54,17 +55,33 @@ def reachable(grid, start, keys):
     # return all reachable keys
     return rchbl
 
+
+def reachables(grid, start, keys):
+    """
+    Find reachable from all entrance
+    """
+    rchbl = {}
+
+    for i in range(len(start)):
+        for key, (point, dist) in reachable(grid, start[i], keys).items():
+            rchbl[key] = point, dist, i
+
+    return rchbl
+
+
 def isDoor(value):
     """
     Check if a value is a door
     """
-    return 'A' <= value and value <= 'Z'
+    return "A" <= value and value <= "Z"
+
 
 def isKey(value):
     """
     Check if a value is a key
     """
-    return 'a' <= value and value <= 'z'
+    return "a" <= value and value <= "z"
+
 
 def compute_possible_positions(start, grid):
     """
@@ -74,7 +91,7 @@ def compute_possible_positions(start, grid):
 
     for direct in DIRECTIONS:
         px, py = start[0] + direct[0], start[1] + direct[1]
-        if (0 <= px < len(grid[0]) and 0 <= py < len(grid)):
+        if 0 <= px < len(grid[0]) and 0 <= py < len(grid):
             if grid[py][px] != WALL:
                 possible.append((px, py))
 
@@ -87,12 +104,12 @@ def shortest(grid, start, keys):
     """
 
     # concat all getted keys into hashable
-    getted = ''.join(sorted(keys))
+    getted = "".join(sorted(keys))
     # if distance for current position to key is known, return value
     if (start, getted) in paths:
         return paths[start, getted]
     # get all reachable keys
-    rchbl = reachable(grid, start, keys)
+    rchbl = reachables(grid, start, keys)
     # if there is no reachable key it's done !
     if len(rchbl) == 0:
         paths[start, getted] = 0
@@ -101,9 +118,15 @@ def shortest(grid, start, keys):
     else:
         # try shortest path for each new potential key
         tries = []
-        for key, (point, dist) in rchbl.items():
+        for key, (point, dist, id) in rchbl.items():
+            updated = tuple(
+                [
+                    point if identifier == id else pos
+                    for identifier, pos in enumerate(start)
+                ]
+            )
             # append it to a list
-            tries.append(dist + shortest(grid, point, getted + key))
+            tries.append(dist + shortest(grid, updated, getted + key))
 
         # keep minimum distance
         res = min(tries)
@@ -113,14 +136,15 @@ def shortest(grid, start, keys):
     return res
 
 
+start = []
 # find starting position
 for y in range(len(grid)):
     for x in range(len(grid[0])):
         # if it's the entry, init start value
         if grid[y][x] == ENTRY:
-            start = (x, y)
+            start.append((x, y))
 
 # store found keys inside a dict
 paths = {}
 # get all reachable keys
-print("Result, part 1 : %d" % shortest(grid, start, ''))
+print("Result, part 2 : %d" % shortest(grid, tuple(start), []))
