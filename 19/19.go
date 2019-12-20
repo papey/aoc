@@ -22,6 +22,8 @@ var (
 )
 
 func main() {
+	const square = 99
+
 	// check args
 	if len(os.Args) < 2 {
 		fmt.Println("Santa is not happy, some of the arguments are missing")
@@ -59,6 +61,28 @@ func main() {
 
 	// part 1
 	fmt.Println(fmt.Sprintf("Result, part 1 : %d", res))
+
+	// start position
+	var x, y = 0, square
+
+	// infinite checks
+	for {
+		// if top left is not in the beam, interate to get it in the beam
+    	for emulate(mem, x, y) == 0 {
+			x++
+		}
+
+		// if bottom right is in the beam
+		if emulate(mem, x+square, y-square) == 1 {
+			// the \ is in the beam, so solution if found
+			fmt.Println(fmt.Sprintf("Result, part 2 : %d", x*10000 + (y - square)))
+			return
+		}
+
+		// if not, increment y value
+		y++
+
+	}
 
 }
 
