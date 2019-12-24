@@ -1,4 +1,4 @@
-# Day 20
+# Day 20: Donut Maze
 
 ## Subject
 
