@@ -1,5 +1,7 @@
 # Day 16: Flawed Frequency Transmission
 
+## Subject
+
 Given the input signal `12345678`, below are four phases of FFT. Within each
 phase, each output digit is calculated on a single line with the result at
 the far right; each multiplication operation shows the input digit on the
