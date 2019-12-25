@@ -1,0 +1,16 @@
+{
+  "name": "22",
+  "version": "1.0.0",
+  "description": "AOC Day 22",
+  "main": "main.js",
+  "repository": "https://github.com/papey/aoc2k19",
+  "author": "papey",
+  "license": "Unlicense",
+  "scripts": {
+    "build": "tsc --outDir dist",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@types/node": "^12.12.14"
+  }
+}
