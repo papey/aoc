@@ -175,4 +175,4 @@ Language used : [TypeScript](https://www.typescriptlang.org/)
 
 ### Run
 
-    mkdir dist && yarn start input/in
+    yarn build && yarn start input/in TIMES SIZE

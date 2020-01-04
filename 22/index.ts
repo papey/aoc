@@ -1,7 +1,8 @@
 import fs from "fs";
+import BigInt from "big-integer"
 
 // exit with error if not args is specified
-if (process.argv.length != 3) {
+if (process.argv.length < 3) {
   console.error("Santa is not happy some of the arguments are missing");
   process.exit(1);
 }
@@ -92,6 +93,54 @@ try {
   });
 
   console.log("Result, part 1 : " + deck.findIndex((x) => x === 2019))
+
+  // exit with error if not args is specified
+  if (process.argv.length < 5) {
+    console.error("Santa is not happy some of the arguments are missing");
+    process.exit(1);
+  }
+
+  // thanks to https://www.reddit.com/r/adventofcode/comments/ee0rqi/2019_day_22_solutions/fbnkaju/
+  let mul = BigInt(1)
+  let offset = BigInt(0)
+
+  const TIMES = BigInt(process.argv[3])
+  const SIZE = BigInt(process.argv[4])
+  const POS = 2020
+
+  rounds.forEach(round => {
+    const kind = round!.kind
+
+    switch (kind) {
+
+      // cut
+      case "cut":
+        offset = BigInt(round!.param!).times(mul).add(offset).mod(SIZE)
+        break;
+
+      // deal into new stack
+      case "dns":
+        mul = mul.times(-1).mod(SIZE)
+        offset = offset.add(mul).mod(SIZE)
+        break;
+
+      // deal with increment
+      case "dwi":
+        mul = BigInt(round!.param!).modInv(SIZE).times(mul).mod(SIZE)
+        break;
+
+      default:
+        break;
+
+    }
+  });
+
+  const inc = mul.modPow(TIMES, SIZE)
+
+  const off = offset.times(BigInt(1).minus(inc)).times(BigInt(1).minus(mul).mod(SIZE).modInv(SIZE)).mod(SIZE)
+
+  console.log("Result, part 2 :", + inc.times(POS).add(off).mod(SIZE))
+
 
 } catch (e) {
   console.error("Error:", e.stack);

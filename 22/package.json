@@ -11,6 +11,9 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@types/node": "^12.12.14"
+    "@types/big-integer": "^0.0.31",
+    "@types/node": "^12.12.14",
+    "big-integer": "^1.6.48",
+    "install": "^0.13.0"
   }
 }
