@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # imports
 from collections import defaultdict
 from string import ascii_uppercase
