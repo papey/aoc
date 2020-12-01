@@ -13,10 +13,7 @@ defmodule AOC do
     def solve(len) do
       get_input("D1")
       |> split_input()
-      |> Enum.map(fn v ->
-        {int, _} = Integer.parse(v)
-        int
-      end)
+      |> Enum.map(&String.to_integer/1)
       |> AOC.Helper.Combinator.combine(len)
       |> Enum.find(&(Enum.sum(&1) == 2020))
       |> List.flatten()
