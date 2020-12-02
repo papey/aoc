@@ -20,4 +20,41 @@ defmodule AOC do
       |> Enum.reduce(1, &(&2 * &1))
     end
   end
+
+  defmodule D2 do
+    @pattern ~r/(\d+)-(\d+) ([a-z]): ([a-z]+)/
+    def run1() do
+      get_input("D2")
+      |> split_input()
+      |> Enum.filter(fn v ->
+        [_, min, max, char, pass] = Regex.run(@pattern, v)
+        occurences = String.graphemes(pass) |> Enum.count(&(&1 == char))
+        String.to_integer(min) <= occurences && occurences <= String.to_integer(max)
+      end)
+      |> Enum.count()
+    end
+
+    def run2() do
+      get_input("D2")
+      |> split_input()
+      |> Enum.filter(fn v ->
+        [_, first, second, char, pass] = Regex.run(@pattern, v)
+        graphmemes = String.graphemes(pass)
+        first = String.to_integer(first) - 1
+        second = String.to_integer(second) - 1
+
+        cond do
+          Enum.at(graphmemes, first) == Enum.at(graphmemes, second) ->
+            false
+
+          Enum.at(graphmemes, first) == char ->
+            Enum.at(graphmemes, second) != char
+
+          true ->
+            Enum.at(graphmemes, second) == char
+        end
+      end)
+      |> Enum.count()
+    end
+  end
 end
