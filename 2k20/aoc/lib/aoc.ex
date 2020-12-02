@@ -40,19 +40,19 @@ defmodule AOC do
       |> split_input()
       |> Enum.filter(fn v ->
         [_, first, second, char, pass] = Regex.run(@pattern, v)
-        graphmemes = String.graphemes(pass)
+        graphemes = String.graphemes(pass)
         first = String.to_integer(first) - 1
         second = String.to_integer(second) - 1
 
         cond do
-          Enum.at(graphmemes, first) == Enum.at(graphmemes, second) ->
+          Enum.at(graphemes, first) == Enum.at(graphemes, second) ->
             false
 
-          Enum.at(graphmemes, first) == char ->
-            Enum.at(graphmemes, second) != char
+          Enum.at(graphemes, first) == char ->
+            Enum.at(graphemes, second) != char
 
           true ->
-            Enum.at(graphmemes, second) == char
+            Enum.at(graphemes, second) == char
         end
       end)
       |> Enum.count()
