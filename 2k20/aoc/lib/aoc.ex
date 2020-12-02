@@ -23,6 +23,7 @@ defmodule AOC do
 
   defmodule D2 do
     @pattern ~r/(\d+)-(\d+) ([a-z]): ([a-z]+)/
+
     def run1() do
       get_input("D2")
       |> split_input()
