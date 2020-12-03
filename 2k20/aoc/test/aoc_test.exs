@@ -11,4 +11,9 @@ defmodule AOCTest do
     assert AOC.D2.run1() == 393
     assert AOC.D2.run2() == 690
   end
+
+  test "Day 3" do
+    assert AOC.D3.run1() == 195
+    assert AOC.D3.run2() == 3_772_314_000
+  end
 end

@@ -58,4 +58,52 @@ defmodule AOC do
       |> Enum.count()
     end
   end
+
+  defmodule D3 do
+    defmodule Direction do
+      defstruct r: 3, d: 1, l: 0, u: 0
+    end
+
+    def run1() do
+      map =
+        get_input("D3")
+        |> split_input()
+
+      follow_slope(%Direction{}, map, 3, 1, 0)
+    end
+
+    def run2() do
+      dirs = [
+        %Direction{r: 1, d: 1},
+        %Direction{r: 3, d: 1},
+        %Direction{r: 5, d: 1},
+        %Direction{r: 7, d: 1},
+        %Direction{r: 1, d: 2}
+      ]
+
+      map =
+        get_input("D3")
+        |> split_input()
+
+      Enum.map(dirs, &follow_slope(&1, map, &1.r, &1.d, 0))
+      |> Enum.reduce(1, &(&2 * &1))
+    end
+
+    def gen_local_map(map, ridx, didx) do
+      line = Enum.at(map, didx)
+      String.graphemes(String.duplicate(line, div(ridx, String.length(line)) + 1))
+    end
+
+    def follow_slope(dir, map, ridx, didx, trees) when didx < length(map) do
+      case Enum.at(gen_local_map(map, ridx, didx), ridx) do
+        "#" ->
+          follow_slope(dir, map, ridx + dir.r, didx + dir.d, trees + 1)
+
+        "." ->
+          follow_slope(dir, map, ridx + dir.r, didx + dir.d, trees)
+      end
+    end
+
+    def follow_slope(_dir, _map, _ridx, _didx, trees), do: trees
+  end
 end
