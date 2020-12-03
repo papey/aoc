@@ -7,7 +7,7 @@ defmodule AOC.Helper do
     end
 
     def split_input(input) do
-      String.split(input, "\n")
+      String.split(input, "\n", trim: true)
     end
   end
 
