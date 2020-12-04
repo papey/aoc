@@ -106,4 +106,82 @@ defmodule AOC do
 
     def follow_slope(_dir, _map, _ridx, _didx, trees), do: trees
   end
+
+  defmodule D4 do
+    @mandatory MapSet.new(["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"])
+
+    def run1() do
+      get_input("D4")
+      |> String.split("\n\n", trim: true)
+      |> Enum.map(&String.replace(&1, "\n", " "))
+      |> Enum.filter(&valid?/1)
+      |> Enum.count()
+    end
+
+    def run2() do
+      get_input("D4")
+      |> String.split("\n\n", trim: true)
+      |> Enum.map(&String.replace(&1, "\n", " "))
+      |> Enum.filter(&valid?(&1, true))
+      |> Enum.count()
+    end
+
+    def is_between_range?(input, {min, max}) do
+      case Integer.parse(input) do
+        :error -> false
+        {val, _} -> min <= val && val <= max
+      end
+    end
+
+    def valid_value?(key, val) do
+      case key do
+        "byr" ->
+          is_between_range?(val, {1920, 2002})
+
+        "iyr" ->
+          is_between_range?(val, {2010, 2020})
+
+        "eyr" ->
+          is_between_range?(val, {2020, 2030})
+
+        "hgt" ->
+          case Regex.run(~r/(\d+)(in|cm)/, val) do
+            [_, match, "in"] -> is_between_range?(match, {59, 76})
+            [_, match, "cm"] -> is_between_range?(match, {150, 193})
+            _ -> false
+          end
+
+        "hcl" ->
+          Regex.match?(~r/#(?:[a-f0-9]){6}/, val)
+
+        "ecl" ->
+          Enum.member?(["amb", "blu", "brn", "gry", "grn", "hzl", "oth"], val)
+
+        "pid" ->
+          Regex.match?(~r/^(?:[0-9]){9}$/, val)
+
+        _ ->
+          true
+      end
+    end
+
+    def valid?(pass, hardened \\ false) do
+      fields =
+        Enum.reduce(String.split(pass, " "), MapSet.new(), fn e, acc ->
+          [key, val] = String.split(e, ":")
+
+          if hardened do
+            if valid_value?(key, val) do
+              MapSet.put(acc, key)
+            else
+              acc
+            end
+          else
+            MapSet.put(acc, key)
+          end
+        end)
+
+      MapSet.subset?(@mandatory, fields)
+    end
+  end
 end
