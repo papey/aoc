@@ -170,14 +170,10 @@ defmodule AOC do
         Enum.reduce(String.split(pass, " "), MapSet.new(), fn e, acc ->
           [key, val] = String.split(e, ":")
 
-          if hardened do
-            if valid_value?(key, val) do
-              MapSet.put(acc, key)
-            else
-              acc
-            end
-          else
+          if !hardened || valid_value?(key, val) do
             MapSet.put(acc, key)
+          else
+            acc
           end
         end)
 
