@@ -133,37 +133,25 @@ defmodule AOC do
       end
     end
 
-    def valid_value?(key, val) do
-      case key do
-        "byr" ->
-          is_between_range?(val, {1920, 2002})
+    def valid_value?("byr", value), do: is_between_range?(value, {1920, 2002})
+    def valid_value?("iyr", value), do: is_between_range?(value, {2010, 2020})
+    def valid_value?("eyr", value), do: is_between_range?(value, {2020, 2030})
+    def valid_value?("hcl", value), do: Regex.match?(~r/#(?:[a-f0-9]){6}/, value)
 
-        "iyr" ->
-          is_between_range?(val, {2010, 2020})
+    def valid_value?("ecl", value),
+      do: Enum.member?(["amb", "blu", "brn", "gry", "grn", "hzl", "oth"], value)
 
-        "eyr" ->
-          is_between_range?(val, {2020, 2030})
+    def valid_value?("pid", value), do: Regex.match?(~r/^(?:[0-9]){9}$/, value)
 
-        "hgt" ->
-          case Regex.run(~r/(\d+)(in|cm)/, val) do
-            [_, match, "in"] -> is_between_range?(match, {59, 76})
-            [_, match, "cm"] -> is_between_range?(match, {150, 193})
-            _ -> false
-          end
-
-        "hcl" ->
-          Regex.match?(~r/#(?:[a-f0-9]){6}/, val)
-
-        "ecl" ->
-          Enum.member?(["amb", "blu", "brn", "gry", "grn", "hzl", "oth"], val)
-
-        "pid" ->
-          Regex.match?(~r/^(?:[0-9]){9}$/, val)
-
-        _ ->
-          true
+    def valid_value?("hgt", value) do
+      case Regex.run(~r/(\d+)(in|cm)/, value) do
+        [_, match, "in"] -> is_between_range?(match, {59, 76})
+        [_, match, "cm"] -> is_between_range?(match, {150, 193})
+        _ -> false
       end
     end
+
+    def valid_value?(_, _), do: true
 
     def valid?(pass, hardened \\ false) do
       fields =
