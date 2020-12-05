@@ -195,20 +195,13 @@ defmodule AOC do
     end
 
     def compute_seat_id(input) do
-      {row, col} = String.split(input, "", trim: true) |> Enum.split(7)
-
-      compute_partial_id(row, {0, 127}) * 8 + compute_partial_id(col, {0, 7})
+      Regex.replace(~r/(F|B|L|R)/, input, fn
+        _, "F" -> "0"
+        _, "B" -> "1"
+        _, "L" -> "0"
+        _, "R" -> "1"
+      end)
+      |> String.to_integer(2)
     end
-
-    def half(value), do: div(value, 2)
-
-    def compute_partial_id([last], {_l, u}) when last == "B" or last == "R", do: u
-    def compute_partial_id([_last], {l, _u}), do: l
-
-    def compute_partial_id([head | tail], {l, u}) when head == "B" or head == "R",
-      do: compute_partial_id(tail, {l + half(u - l) + 1, u})
-
-    def compute_partial_id([_head | tail], {l, u}),
-      do: compute_partial_id(tail, {l, u - half(u - l) - 1})
   end
 end
