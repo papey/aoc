@@ -168,4 +168,47 @@ defmodule AOC do
       MapSet.subset?(@mandatory, fields)
     end
   end
+
+  defmodule D5 do
+    def run1() do
+      get_input("D5")
+      |> split_input()
+      |> Enum.map(&compute_seat_id/1)
+      |> Enum.max()
+    end
+
+    def run2() do
+      board_list =
+        get_input("D5")
+        |> split_input()
+        |> Enum.map(&compute_seat_id/1)
+        |> Enum.sort()
+
+      [head_id | _] = board_list
+
+      {mismatch, _index} =
+        Enum.with_index(board_list, head_id)
+        |> Enum.take_while(fn {value, index} -> value == index end)
+        |> List.last()
+
+      mismatch + 1
+    end
+
+    def compute_seat_id(input) do
+      {row, col} = String.split(input, "", trim: true) |> Enum.split(7)
+
+      compute_partial_id(row, {0, 127}) * 8 + compute_partial_id(col, {0, 7})
+    end
+
+    def half(value), do: div(value, 2)
+
+    def compute_partial_id([last], {_l, u}) when last == "B" or last == "R", do: u
+    def compute_partial_id([_last], {l, _u}), do: l
+
+    def compute_partial_id([head | tail], {l, u}) when head == "B" or head == "R",
+      do: compute_partial_id(tail, {l + half(u - l) + 1, u})
+
+    def compute_partial_id([_head | tail], {l, u}),
+      do: compute_partial_id(tail, {l, u - half(u - l) - 1})
+  end
 end

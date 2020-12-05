@@ -46,4 +46,9 @@ defmodule AOCTest do
     assert AOC.D4.run1() == 228
     assert AOC.D4.run2() == 175
   end
+
+  test "Day 5" do
+    assert AOC.D5.run1() == 926
+    assert AOC.D5.run2() == 657
+  end
 end
