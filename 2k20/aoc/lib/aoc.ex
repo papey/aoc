@@ -204,4 +204,39 @@ defmodule AOC do
       |> String.to_integer(2)
     end
   end
+
+  defmodule D6 do
+    def run1() do
+      get_input("D6")
+      |> String.split("\n\n", trim: true)
+      |> Enum.reduce(0, fn v, acc ->
+        count =
+          String.replace(v, "\n", "")
+          |> String.graphemes()
+          |> Enum.uniq()
+          |> Enum.count()
+
+        acc + count
+      end)
+    end
+
+    def run2() do
+      get_input("D6")
+      |> String.split("\n\n", trim: true)
+      |> Enum.reduce(0, fn v, acc ->
+        group = String.split(v, "\n")
+        len = Enum.count(group)
+
+        count =
+          String.replace(v, "\n", "")
+          |> String.graphemes()
+          |> Enum.frequencies()
+          |> Enum.to_list()
+          |> Enum.filter(fn {_answer, f} -> f == len end)
+          |> Enum.count()
+
+        acc + count
+      end)
+    end
+  end
 end
