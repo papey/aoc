@@ -2,8 +2,9 @@ defmodule AOC.Helper do
   defmodule Input do
     @base "inputs"
 
-    def get_input(day) do
-      File.read!(Path.join(@base, String.upcase(day) <> ".input"))
+    def get_input(day, test \\ false) do
+      input = if test, do: ".input.test", else: ".input"
+      File.read!(Path.join(@base, String.upcase(day) <> input))
     end
 
     def split_input(input) do
