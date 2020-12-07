@@ -1,6 +1,5 @@
 defmodule AOCTest do
   use ExUnit.Case
-  doctest AOC
 
   test "Day 1" do
     assert AOC.D1.run1() == 996_996
