@@ -70,10 +70,9 @@ defmodule AOC.D7 do
     if Map.has_key?(contains, target) do
       true
     else
-      Enum.map(contains, fn {name, _quantity} ->
+      Enum.find_value(contains, false, fn {name, _quantity} ->
         contains?(Map.get(bags, name), target, bags)
       end)
-      |> Enum.member?(true)
     end
   end
 
