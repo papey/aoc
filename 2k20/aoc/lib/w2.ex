@@ -55,16 +55,16 @@ defmodule AOC.D7 do
   end
 
   def count(contains, acc, bags) when contains != %{} do
-    local =
-      Enum.map(contains, fn {name, quantity} ->
-        acc * count(Map.get(bags, name), quantity, bags)
-      end)
-      |> Enum.sum()
-
-    acc + local
+    Enum.map(contains, fn {name, quantity} ->
+      acc * count(Map.get(bags, name), quantity, bags)
+    end)
+    |> Enum.sum()
+    |> add(acc)
   end
 
   def count(_contains, acc, _bags), do: acc
+
+  def add(a, b), do: a + b
 
   def contains?(contains, target, bags) when contains != %{} do
     if Map.has_key?(contains, target) do
