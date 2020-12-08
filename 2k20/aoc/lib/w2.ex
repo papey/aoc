@@ -99,22 +99,63 @@ defmodule AOC.D8 do
     acc
   end
 
-  def run(prg, acc, ip, visited) do
-    if MapSet.member?(visited, ip) do
-      {:error, acc}
-    else
-      inst = Map.get(prg, ip)
+  def run2() do
+    {:ok, acc} =
+      get_input("D8")
+      |> split_input()
+      |> Enum.with_index()
+      |> Enum.reduce(%{}, fn inst, acc ->
+        reducer(inst, acc)
+      end)
+      |> fix()
 
-      {nacc, nip} =
+    acc
+  end
+
+  def run(prg, acc, ip, visited) do
+    cond do
+      MapSet.member?(visited, ip) ->
+        {:error, acc}
+
+      ip >= map_size(prg) ->
+        {:ok, acc}
+
+      true ->
+        inst = Map.get(prg, ip)
+
+        {nacc, nip} =
+          case inst.code do
+            :jmp -> {acc, ip + inst.sign * inst.value}
+            :nop -> {acc, ip + 1}
+            :acc -> {acc + inst.sign * inst.value, ip + 1}
+            code -> raise "Invalid instruction #{code}"
+          end
+
+        run(prg, nacc, nip, MapSet.put(visited, ip))
+    end
+  end
+
+  def fix(prg) do
+    Enum.find_value(0..(map_size(prg) - 1), fn i ->
+      inst = Map.get(prg, i)
+
+      updated =
         case inst.code do
-          :jmp -> {acc, ip + inst.sign * inst.value}
-          :nop -> {acc, ip + 1}
-          :acc -> {acc + inst.sign * inst.value, ip + 1}
-          code -> raise "Invalid instruction #{code}"
+          :jmp -> %{inst | code: :nop}
+          :nop -> %{inst | code: :jmp}
+          _ -> nil
         end
 
-      run(prg, nacc, nip, MapSet.put(visited, ip))
-    end
+      if updated do
+        case run(Map.replace(prg, i, updated), 0, 0, MapSet.new()) do
+          {:ok, acc} ->
+            {:ok, acc}
+
+          {:error, _acc} ->
+            false
+        end
+      end
+    end)
   end
 
   def reducer({inst, idx}, acc) do
