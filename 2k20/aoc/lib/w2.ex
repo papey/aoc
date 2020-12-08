@@ -78,3 +78,53 @@ defmodule AOC.D7 do
 
   def contains?(_contains, _target, _bags), do: false
 end
+
+defmodule AOC.D8 do
+  import AOC.Helper.Input
+
+  defmodule Instruction do
+    defstruct code: :nop, sign: 1, value: 0
+  end
+
+  def run1() do
+    {:error, acc} =
+      get_input("D8")
+      |> split_input()
+      |> Enum.with_index()
+      |> Enum.reduce(%{}, fn inst, acc ->
+        reducer(inst, acc)
+      end)
+      |> run(0, 0, MapSet.new())
+
+    acc
+  end
+
+  def run(prg, acc, ip, visited) do
+    if MapSet.member?(visited, ip) do
+      {:error, acc}
+    else
+      inst = Map.get(prg, ip)
+
+      {nacc, nip} =
+        case inst.code do
+          :jmp -> {acc, ip + inst.sign * inst.value}
+          :nop -> {acc, ip + 1}
+          :acc -> {acc + inst.sign * inst.value, ip + 1}
+          code -> raise "Invalid instruction #{code}"
+        end
+
+      run(prg, nacc, nip, MapSet.put(visited, ip))
+    end
+  end
+
+  def reducer({inst, idx}, acc) do
+    <<code::bytes-size(3), " ", sign::bytes-size(1)>> <> num = inst
+    sign = if sign == "+", do: 1, else: -1
+
+    Map.put(acc, idx, %Instruction{
+      code: String.to_atom(code),
+      sign: sign,
+      value: String.to_integer(num)
+    })
+  end
+end
