@@ -65,4 +65,9 @@ defmodule AOCTest do
     assert AOC.D8.run1() == 1446
     assert AOC.D8.run2() == 1403
   end
+
+  test "Day 9" do
+    assert AOC.D9.run1() == 21_806_024
+    assert AOC.D9.run2() == 2_986_195
+  end
 end

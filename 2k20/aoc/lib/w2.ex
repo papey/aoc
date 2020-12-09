@@ -169,3 +169,59 @@ defmodule AOC.D8 do
     })
   end
 end
+
+defmodule AOC.D9 do
+  import AOC.Helper.Input
+
+  @preamble_len 25
+
+  def run1() do
+    get_input("D9")
+    |> split_input()
+    |> Enum.map(&String.to_integer/1)
+    |> find_first_mismatch()
+  end
+
+  def run2() do
+    values =
+      get_input("D9")
+      |> split_input()
+      |> Enum.map(&String.to_integer/1)
+
+    find_first_mismatch(values)
+    |> find_range(values)
+  end
+
+  def find_range(target, [rh | rt]) do
+    case search_in_range(target, [rh], rt) do
+      :next -> find_range(target, rt)
+      {min, max} -> min + max
+    end
+  end
+
+  def search_in_range(target, range, [h | t]) do
+    case Enum.sum([h | range]) do
+      x when x < target -> search_in_range(target, [h | range], t)
+      x when x > target -> :next
+      _ -> Enum.min_max([h | range])
+    end
+  end
+
+  def find_first_mismatch(values) do
+    Enum.find_value(@preamble_len..length(values), fn i ->
+      current = Enum.at(values, i)
+
+      pairs =
+        for x <- Enum.slice(values, i - @preamble_len, i),
+            y <- Enum.slice(values, i - @preamble_len, i),
+            x != y,
+            x + y == current,
+            do: {x, y}
+
+      case pairs do
+        [] -> current
+        _ -> false
+      end
+    end)
+  end
+end
