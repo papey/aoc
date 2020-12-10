@@ -225,3 +225,26 @@ defmodule AOC.D9 do
     end)
   end
 end
+
+defmodule AOC.D10 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    {_, %{1 => ones, 3 => threes}} =
+      get_input("D10", test)
+      |> split_input()
+      |> Enum.map(&String.to_integer/1)
+      |> Enum.sort()
+      |> find_jolts_deltas()
+
+    ones * threes
+  end
+
+  def find_jolts_deltas(inputs) do
+    counters = %{0 => 0, 1 => 1, 2 => 1, 3 => 1}
+
+    Enum.reduce(inputs, {List.first(inputs), counters}, fn v, {previous, counters} ->
+      {v, Map.put(counters, v - previous, Map.get(counters, v - previous) + 1)}
+    end)
+  end
+end
