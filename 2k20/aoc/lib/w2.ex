@@ -240,54 +240,28 @@ defmodule AOC.D10 do
     |> split_input()
     |> Enum.map(&String.to_integer/1)
     |> Enum.sort()
-    |> complete_adapters_chain()
-    |> count_combinations(:start_cache)
+    |> reduce_combinations()
+    |> Enum.map(&tribo/1)
+    |> Enum.reduce(&Kernel.*/2)
   end
 
-  defmodule Memo do
-    use Agent
-
-    def start_link() do
-      Agent.start_link(fn -> %{} end, name: __MODULE__)
-    end
-
-    def get(key) do
-      Agent.get(__MODULE__, &Map.get(&1, key))
-    end
-
-    def update(key, value) do
-      Agent.update(__MODULE__, &Map.put(&1, key, value))
-    end
-  end
-
-  def complete_adapters_chain(adapters) do
-    [0 | adapters] ++ [List.last(adapters) + 3]
-  end
-
-  def count_combinations([h | t], :start_cache) do
-    {:ok, pid} = Memo.start_link()
-    res = count_combinations(h, t)
-    Agent.stop(pid)
-    trunc(res / 2)
-  end
-
-  def count_combinations(_, []), do: 1
-
-  def count_combinations(current, [h | t]) do
-    case Memo.get(current) do
-      nil ->
-        if h - current <= 3 do
-          value = count_combinations(current, t) + count_combinations(h, t)
-          Memo.update(current, value)
-          value
+  def reduce_combinations(list) do
+    {reduced, _} =
+      Enum.reduce(list, {[1], 0}, fn v, {[h | t] = l, previous} ->
+        if v - previous == 1 do
+          {[h + 1 | t], v}
         else
-          0
+          {[1 | l], v}
         end
+      end)
 
-      v ->
-        v
-    end
+    reduced
   end
+
+  def tribo(0), do: 0
+  def tribo(1), do: 1
+  def tribo(2), do: 1
+  def tribo(n), do: tribo(n - 1) + tribo(n - 2) + tribo(n - 3)
 
   def find_jolts_deltas(inputs) do
     counters = %{0 => 0, 1 => 1, 2 => 1, 3 => 1}
