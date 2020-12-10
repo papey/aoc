@@ -208,21 +208,16 @@ defmodule AOC.D9 do
   end
 
   def find_first_mismatch(values) do
-    Enum.find_value(@preamble_len..length(values), fn i ->
-      current = Enum.at(values, i)
+    find_first_mismatch(Enum.take(values, @preamble_len), Enum.drop(values, @preamble_len))
+  end
 
-      pairs =
-        for x <- Enum.slice(values, i - @preamble_len, i),
-            y <- Enum.slice(values, i - @preamble_len, i),
-            x != y,
-            x + y == current,
-            do: {x, y}
+  def find_first_mismatch(pool, [current | rest]) do
+    pairs = for x <- pool, y <- pool, x != y, x + y == current, do: {x, y}
 
-      case pairs do
-        [] -> current
-        _ -> false
-      end
-    end)
+    case pairs do
+      [] -> current
+      _ -> find_first_mismatch(Enum.drop(pool, 1) ++ [current], rest)
+    end
   end
 end
 
