@@ -73,5 +73,6 @@ defmodule AOCTest do
 
   test "Day 10" do
     assert AOC.D10.run1() == 1984
+    assert AOC.D10.run2() == 3_543_369_523_456
   end
 end
