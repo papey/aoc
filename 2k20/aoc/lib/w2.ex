@@ -271,3 +271,76 @@ defmodule AOC.D10 do
     end)
   end
 end
+
+defmodule AOC.D11 do
+  import AOC.Helper.Input
+
+  @free "L"
+  @occupied "#"
+
+  @range -1..1
+  @dirs for(x <- @range, y <- @range, do: {x, y})
+        |> Enum.reject(fn d -> d == {0, 0} end)
+
+  def run1(test \\ false) do
+    get_input("D11", test)
+    |> split_input()
+    |> Enum.map(&String.graphemes/1)
+    |> enrich_map()
+    |> stabilize()
+    |> Enum.reduce(0, fn {l, _}, acc ->
+      acc + (Enum.filter(l, fn {v, _} -> v == @occupied end) |> Enum.count())
+    end)
+  end
+
+  def enrich_map(map) do
+    enriched =
+      Enum.with_index(map)
+      |> Enum.map(fn {l, y} ->
+        {Enum.with_index(l), y}
+      end)
+
+    {enriched, {length(Enum.at(map, 0)), length(map)}}
+  end
+
+  def stabilize({map, size}), do: stabilize(map, step(map, size), size)
+
+  def stabilize(previous, current, _size) when previous == current, do: current
+
+  def stabilize(_previous, current, size) do
+    stabilize(current, step(current, size), size)
+  end
+
+  def step(current, size) do
+    Enum.map(current, fn {l, y} ->
+      {Enum.map(l, fn {v, x} ->
+         cond do
+           v == @free && adj(current, x, y, size) == 0 -> {@occupied, x}
+           v == @occupied && adj(current, x, y, size) >= 4 -> {@free, x}
+           true -> {v, x}
+         end
+       end), y}
+    end)
+  end
+
+  def adj(current, x, y, {xl, yl}) do
+    Enum.reduce(@dirs, 0, fn {dx, dy}, acc ->
+      xx = x + dx
+      yy = y + dy
+
+      if xx >= 0 && xx < xl && yy >= 0 && yy < yl && occupied?(current, xx, yy) do
+        acc + 1
+      else
+        acc
+      end
+    end)
+  end
+
+  def occupied?(current, x, y) do
+    {v, _} =
+      Enum.at(current, y)
+      |> (fn {raw, _y} -> Enum.at(raw, x) end).()
+
+    v == @occupied
+  end
+end
