@@ -277,6 +277,7 @@ defmodule AOC.D11 do
 
   @free "L"
   @occupied "#"
+  @floor "."
 
   @dirs [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}]
 
@@ -285,7 +286,18 @@ defmodule AOC.D11 do
     |> split_input()
     |> Enum.map(&String.graphemes/1)
     |> map_to_map()
-    |> stabilize()
+    |> stabilize(:mistake)
+    |> Enum.reduce(0, fn {_, l}, acc ->
+      acc + (Enum.filter(l, fn {_, v} -> v == @occupied end) |> Enum.count())
+    end)
+  end
+
+  def run2(test \\ false) do
+    get_input("D11", test)
+    |> split_input()
+    |> Enum.map(&String.graphemes/1)
+    |> map_to_map()
+    |> stabilize(:no_mistake)
     |> Enum.reduce(0, fn {_, l}, acc ->
       acc + (Enum.filter(l, fn {_, v} -> v == @occupied end) |> Enum.count())
     end)
@@ -305,40 +317,85 @@ defmodule AOC.D11 do
     {enriched, {length(Enum.at(map, 0)), length(map)}}
   end
 
-  def stabilize({map, size}), do: stabilize(map, step(map, size), size)
+  def stabilize({map, size}, kind), do: stabilize(map, step(map, size, kind), size, kind)
 
-  def stabilize(previous, current, _size) when previous == current, do: current
+  def stabilize(previous, current, _size, _kind) when previous == current, do: current
 
-  def stabilize(_previous, current, size), do: stabilize(current, step(current, size), size)
+  def stabilize(_previous, current, size, kind),
+    do: stabilize(current, step(current, size, kind), size, kind)
 
-  def step(current, size) do
+  def step(current, size, kind) do
     Enum.reduce(current, %{}, fn {y, l}, acc ->
       Map.put(
         acc,
         y,
         Enum.reduce(l, %{}, fn {x, v}, acc ->
-          cond do
-            v == @free && adj(current, x, y, size) == 0 -> Map.put(acc, x, @occupied)
-            v == @occupied && adj(current, x, y, size) >= 4 -> Map.put(acc, x, @free)
-            true -> Map.put(acc, x, v)
+          case kind do
+            :mistake ->
+              cond do
+                v == @free && adj(current, x, y, size) == 0 -> Map.put(acc, x, @occupied)
+                v == @occupied && adj(current, x, y, size) >= 4 -> Map.put(acc, x, @free)
+                true -> Map.put(acc, x, v)
+              end
+
+            :no_mistake ->
+              cond do
+                v == @free && neighbours(current, x, y, size) == 0 -> Map.put(acc, x, @occupied)
+                v == @occupied && neighbours(current, x, y, size) >= 5 -> Map.put(acc, x, @free)
+                true -> Map.put(acc, x, v)
+              end
+
+            _ ->
+              raise "Kind #{kind} not supported"
           end
         end)
       )
     end)
   end
 
-  def adj(current, x, y, {xl, yl}) do
+  def adj(current, x, y, size) do
     Enum.reduce(@dirs, 0, fn {dx, dy}, acc ->
       xx = x + dx
       yy = y + dy
 
-      if xx >= 0 && xx < xl && yy >= 0 && yy < yl && occupied?(current, xx, yy) do
+      if is_in?(xx, yy, size) && occupied?(current, xx, yy) do
         acc + 1
       else
         acc
       end
     end)
   end
+
+  # this is a big pile of shit but a working one so 🤷
+  def neighbours(current, x, y, size) do
+    Enum.reduce(@dirs, 0, fn {dx, dy}, acc ->
+      [{xx, yy}] =
+        Stream.iterate(1, &(&1 + 1))
+        |> Stream.map(fn mul -> {x + dx * mul, y + dy * mul} end)
+        |> Stream.drop_while(fn {xx, yy} ->
+          if is_in?(xx, yy, size) do
+            case Map.get(current, yy) |> Map.get(xx) do
+              @floor -> true
+              _ -> false
+            end
+          else
+            false
+          end
+        end)
+        |> Enum.take(1)
+
+      if is_in?(xx, yy, size) do
+        case Map.get(current, yy) |> Map.get(xx) do
+          @occupied -> acc + 1
+          _ -> acc
+        end
+      else
+        acc
+      end
+    end)
+  end
+
+  def is_in?(x, y, {xl, yl}), do: x >= 0 && x < xl && y >= 0 && y < yl
 
   def occupied?(current, x, y) do
     Map.get(current, y) |> Map.get(x) == @occupied
