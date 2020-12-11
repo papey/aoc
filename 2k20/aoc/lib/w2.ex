@@ -278,26 +278,28 @@ defmodule AOC.D11 do
   @free "L"
   @occupied "#"
 
-  @range -1..1
-  @dirs for(x <- @range, y <- @range, do: {x, y})
-        |> Enum.reject(fn d -> d == {0, 0} end)
+  @dirs [{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}]
 
   def run1(test \\ false) do
     get_input("D11", test)
     |> split_input()
     |> Enum.map(&String.graphemes/1)
-    |> enrich_map()
+    |> map_to_map()
     |> stabilize()
-    |> Enum.reduce(0, fn {l, _}, acc ->
-      acc + (Enum.filter(l, fn {v, _} -> v == @occupied end) |> Enum.count())
+    |> Enum.reduce(0, fn {_, l}, acc ->
+      acc + (Enum.filter(l, fn {_, v} -> v == @occupied end) |> Enum.count())
     end)
   end
 
-  def enrich_map(map) do
+  def map_to_map(map) do
     enriched =
       Enum.with_index(map)
-      |> Enum.map(fn {l, y} ->
-        {Enum.with_index(l), y}
+      |> Enum.reduce(%{}, fn {l, y}, acc ->
+        Map.put(
+          acc,
+          y,
+          Enum.with_index(l) |> Enum.reduce(%{}, fn {v, x}, acc -> Map.put(acc, x, v) end)
+        )
       end)
 
     {enriched, {length(Enum.at(map, 0)), length(map)}}
@@ -307,19 +309,21 @@ defmodule AOC.D11 do
 
   def stabilize(previous, current, _size) when previous == current, do: current
 
-  def stabilize(_previous, current, size) do
-    stabilize(current, step(current, size), size)
-  end
+  def stabilize(_previous, current, size), do: stabilize(current, step(current, size), size)
 
   def step(current, size) do
-    Enum.map(current, fn {l, y} ->
-      {Enum.map(l, fn {v, x} ->
-         cond do
-           v == @free && adj(current, x, y, size) == 0 -> {@occupied, x}
-           v == @occupied && adj(current, x, y, size) >= 4 -> {@free, x}
-           true -> {v, x}
-         end
-       end), y}
+    Enum.reduce(current, %{}, fn {y, l}, acc ->
+      Map.put(
+        acc,
+        y,
+        Enum.reduce(l, %{}, fn {x, v}, acc ->
+          cond do
+            v == @free && adj(current, x, y, size) == 0 -> Map.put(acc, x, @occupied)
+            v == @occupied && adj(current, x, y, size) >= 4 -> Map.put(acc, x, @free)
+            true -> Map.put(acc, x, v)
+          end
+        end)
+      )
     end)
   end
 
@@ -337,10 +341,6 @@ defmodule AOC.D11 do
   end
 
   def occupied?(current, x, y) do
-    {v, _} =
-      Enum.at(current, y)
-      |> (fn {raw, _y} -> Enum.at(raw, x) end).()
-
-    v == @occupied
+    Map.get(current, y) |> Map.get(x) == @occupied
   end
 end
