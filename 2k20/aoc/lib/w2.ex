@@ -287,9 +287,8 @@ defmodule AOC.D11 do
     |> Enum.map(&String.graphemes/1)
     |> map_to_map()
     |> stabilize(:mistake)
-    |> Enum.reduce(0, fn {_, l}, acc ->
-      acc + (Enum.filter(l, fn {_, v} -> v == @occupied end) |> Enum.count())
-    end)
+    |> Enum.filter(fn {_coords, v} -> v == @occupied end)
+    |> Enum.count()
   end
 
   def run2(test \\ false) do
@@ -298,106 +297,75 @@ defmodule AOC.D11 do
     |> Enum.map(&String.graphemes/1)
     |> map_to_map()
     |> stabilize(:no_mistake)
-    |> Enum.reduce(0, fn {_, l}, acc ->
-      acc + (Enum.filter(l, fn {_, v} -> v == @occupied end) |> Enum.count())
-    end)
+    |> Enum.filter(fn {_coords, v} -> v == @occupied end)
+    |> Enum.count()
   end
 
   def map_to_map(map) do
-    enriched =
-      Enum.with_index(map)
-      |> Enum.reduce(%{}, fn {l, y}, acc ->
-        Map.put(
-          acc,
-          y,
-          Enum.with_index(l) |> Enum.reduce(%{}, fn {v, x}, acc -> Map.put(acc, x, v) end)
-        )
+    Enum.with_index(map)
+    |> Enum.reduce(%{}, fn {l, y}, acc ->
+      Enum.with_index(l)
+      |> Enum.reduce(%{}, fn {v, x}, acc ->
+        Map.put(acc, {y, x}, v)
       end)
-
-    {enriched, {length(Enum.at(map, 0)), length(map)}}
-  end
-
-  def stabilize({map, size}, kind), do: stabilize(map, step(map, size, kind), size, kind)
-
-  def stabilize(previous, current, _size, _kind) when previous == current, do: current
-
-  def stabilize(_previous, current, size, kind),
-    do: stabilize(current, step(current, size, kind), size, kind)
-
-  def step(current, size, kind) do
-    Enum.reduce(current, %{}, fn {y, l}, acc ->
-      Map.put(
-        acc,
-        y,
-        Enum.reduce(l, %{}, fn {x, v}, acc ->
-          case kind do
-            :mistake ->
-              cond do
-                v == @free && adj(current, x, y, size) == 0 -> Map.put(acc, x, @occupied)
-                v == @occupied && adj(current, x, y, size) >= 4 -> Map.put(acc, x, @free)
-                true -> Map.put(acc, x, v)
-              end
-
-            :no_mistake ->
-              cond do
-                v == @free && neighbours(current, x, y, size) == 0 -> Map.put(acc, x, @occupied)
-                v == @occupied && neighbours(current, x, y, size) >= 5 -> Map.put(acc, x, @free)
-                true -> Map.put(acc, x, v)
-              end
-
-            _ ->
-              raise "Kind #{kind} not supported"
-          end
-        end)
-      )
+      |> Map.merge(acc)
     end)
   end
 
-  def adj(current, x, y, size) do
+  def stabilize(map, kind), do: stabilize(map, step(map, kind), kind)
+
+  def stabilize(previous, current, _kind) when previous == current, do: current
+
+  def stabilize(_previous, current, kind),
+    do: stabilize(current, step(current, kind), kind)
+
+  def step(current, kind) do
+    Enum.reduce(current, %{}, fn {{x, y}, v}, acc ->
+      case kind do
+        :mistake ->
+          cond do
+            v == @free && adj(current, {x, y}) == 0 -> Map.put(acc, {x, y}, @occupied)
+            v == @occupied && adj(current, {x, y}) >= 4 -> Map.put(acc, {x, y}, @free)
+            true -> Map.put(acc, {x, y}, v)
+          end
+
+        :no_mistake ->
+          cond do
+            v == @free && neighbours(current, {x, y}) == 0 -> Map.put(acc, {x, y}, @occupied)
+            v == @occupied && neighbours(current, {x, y}) >= 5 -> Map.put(acc, {x, y}, @free)
+            true -> Map.put(acc, {x, y}, v)
+          end
+
+        _ ->
+          raise "Kind #{kind} not supported"
+      end
+    end)
+  end
+
+  def adj(current, {x, y}) do
     Enum.reduce(@dirs, 0, fn {dx, dy}, acc ->
       xx = x + dx
       yy = y + dy
 
-      if is_in?(xx, yy, size) && occupied?(current, xx, yy) do
-        acc + 1
-      else
-        acc
-      end
+      if occupied?(current, {xx, yy}), do: acc + 1, else: acc
     end)
   end
 
-  # this is a big pile of shit but a working one so 🤷
-  def neighbours(current, x, y, size) do
+  # this is slow...
+  def neighbours(current, {x, y}) do
     Enum.reduce(@dirs, 0, fn {dx, dy}, acc ->
-      [{xx, yy}] =
+      [v] =
         Stream.iterate(1, &(&1 + 1))
         |> Stream.map(fn mul -> {x + dx * mul, y + dy * mul} end)
-        |> Stream.drop_while(fn {xx, yy} ->
-          if is_in?(xx, yy, size) do
-            case Map.get(current, yy) |> Map.get(xx) do
-              @floor -> true
-              _ -> false
-            end
-          else
-            false
-          end
-        end)
+        |> Stream.map(fn {xx, yy} -> Map.get(current, {xx, yy}) end)
+        |> Stream.drop_while(&(&1 == @floor))
         |> Enum.take(1)
 
-      if is_in?(xx, yy, size) do
-        case Map.get(current, yy) |> Map.get(xx) do
-          @occupied -> acc + 1
-          _ -> acc
-        end
-      else
-        acc
-      end
+      if v == @occupied, do: acc + 1, else: acc
     end)
   end
 
-  def is_in?(x, y, {xl, yl}), do: x >= 0 && x < xl && y >= 0 && y < yl
-
-  def occupied?(current, x, y) do
-    Map.get(current, y) |> Map.get(x) == @occupied
+  def occupied?(current, coords) do
+    Map.get(current, coords) == @occupied
   end
 end
