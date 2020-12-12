@@ -369,3 +369,56 @@ defmodule AOC.D11 do
     Map.get(current, coords) == @occupied
   end
 end
+
+defmodule AOC.D12 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    get_input("D12", test)
+    |> split_input()
+    |> Enum.map(&parse_directive/1)
+    |> Enum.reduce({{0, 0}, {1, 0}}, &ship_instruction/2)
+    |> (fn {{x, y}, _} -> abs(x) + abs(y) end).()
+  end
+
+  def run2(test \\ false) do
+    get_input("D12", test)
+    |> split_input()
+    |> Enum.map(&parse_directive/1)
+    |> Enum.reduce({{0, 0}, {10, 1}}, &wp_instruction/2)
+    |> (fn {{x, y}, _} -> abs(x) + abs(y) end).()
+  end
+
+  def parse_directive(directive) do
+    <<inst::bytes-size(1)>> <> value = directive
+    {String.to_atom(inst), String.to_integer(value)}
+  end
+
+  def move(v, {{x, y}, {dx, dy}}), do: {{x + dx * v, y + dy * v}, {dx, dy}}
+
+  def ship_instruction({:F, v}, state), do: move(v, state)
+
+  def ship_instruction({:N, v}, {{x, y}, dir}), do: {{x, y + v}, dir}
+  def ship_instruction({:S, v}, {{x, y}, dir}), do: {{x, y - v}, dir}
+  def ship_instruction({:E, v}, {{x, y}, dir}), do: {{x + v, y}, dir}
+  def ship_instruction({:W, v}, {{x, y}, dir}), do: {{x - v, y}, dir}
+
+  def ship_instruction({:R, v}, {pos, dir}), do: {pos, rr(dir, v)}
+  def ship_instruction({:L, v}, {pos, dir}), do: {pos, rl(dir, v)}
+
+  def wp_instruction({:F, v}, state), do: move(v, state)
+
+  def wp_instruction({:N, v}, {pos, {dx, dy}}), do: {pos, {dx, dy + v}}
+  def wp_instruction({:S, v}, {pos, {dx, dy}}), do: {pos, {dx, dy - v}}
+  def wp_instruction({:E, v}, {pos, {dx, dy}}), do: {pos, {dx + v, dy}}
+  def wp_instruction({:W, v}, {pos, {dx, dy}}), do: {pos, {dx - v, dy}}
+
+  def wp_instruction({:R, v}, {pos, dir}), do: {pos, rr(dir, v)}
+  def wp_instruction({:L, v}, {pos, dir}), do: {pos, rl(dir, v)}
+
+  def rr(dir, 0), do: dir
+  def rr({dx, dy}, deg), do: rr({dy, -dx}, deg - 90)
+
+  def rl(dir, 0), do: dir
+  def rl({dx, dy}, deg), do: rl({-dy, dx}, deg - 90)
+end
