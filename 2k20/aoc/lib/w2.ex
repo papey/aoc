@@ -422,3 +422,33 @@ defmodule AOC.D12 do
   def rl(dir, 0), do: dir
   def rl({dx, dy}, deg), do: rl({-dy, dx}, deg - 90)
 end
+
+defmodule AOC.D13 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    [st, buses] =
+      get_input("D13", test)
+      |> split_input()
+
+    start = String.to_integer(st)
+
+    ids =
+      String.split(buses, ",")
+      |> Enum.filter(&(&1 != "x"))
+      |> Enum.map(&String.to_integer/1)
+
+    {wait, line} =
+      Enum.reduce(ids, {start, start}, fn lno, {soonest, l} ->
+        case lno - rem(start, lno) do
+          w when w < soonest ->
+            {w, lno}
+
+          _ ->
+            {soonest, l}
+        end
+      end)
+
+    wait * line
+  end
+end
