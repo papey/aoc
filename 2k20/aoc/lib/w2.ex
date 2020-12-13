@@ -467,13 +467,16 @@ defmodule AOC.D13 do
         end
       end)
 
-    Enum.reduce(schedule, {1, 1}, fn {l, t}, {min, product} ->
-      [res] =
-        Stream.iterate(min, &(&1 + product))
-        |> Stream.drop_while(&(rem(&1 + t, l) != 0))
-        |> Enum.take(1)
+    {res, _} =
+      Enum.reduce(schedule, {1, 1}, fn {l, t}, {min, product} ->
+        [res] =
+          Stream.iterate(min, &(&1 + product))
+          |> Stream.drop_while(&(rem(&1 + t, l) != 0))
+          |> Enum.take(1)
 
-      {res, product * l}
-    end)
+        {res, product * l}
+      end)
+
+    res
   end
 end
