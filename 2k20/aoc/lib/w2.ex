@@ -451,4 +451,29 @@ defmodule AOC.D13 do
 
     wait * line
   end
+
+  def run2(test \\ false) do
+    [_, buses] =
+      get_input("D13", test)
+      |> split_input()
+
+    {schedule, _} =
+      String.split(buses, ",")
+      |> Enum.reduce({%{}, 0}, fn v, {schedule, count} ->
+        if v == "x" do
+          {schedule, count + 1}
+        else
+          {Map.put(schedule, String.to_integer(v), count), count + 1}
+        end
+      end)
+
+    Enum.reduce(schedule, {1, 1}, fn {l, t}, {min, product} ->
+      [res] =
+        Stream.iterate(min, &(&1 + product))
+        |> Stream.drop_while(&(rem(&1 + t, l) != 0))
+        |> Enum.take(1)
+
+      {res, product * l}
+    end)
+  end
 end
