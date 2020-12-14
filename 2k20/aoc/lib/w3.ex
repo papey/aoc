@@ -21,7 +21,7 @@ defmodule AOC.D14 do
   end
 
   def init(instructions, :values) do
-    Enum.reduce(instructions, {%{}, {0, 0}}, fn inst, {mem, {or_mask, and_mask} = masks} ->
+    Enum.reduce(instructions, {%{}, {0, 0, []}}, fn inst, {mem, {or_mask, and_mask, _} = masks} ->
       if String.contains?(inst, "mask") do
         {mem, parse_mask(inst)}
       else
@@ -36,79 +36,51 @@ defmodule AOC.D14 do
   end
 
   def init(instructions, :memory) do
-    Enum.reduce(instructions, {%{}, {0, 0}}, fn inst, {mem, {or_mask, and_mask} = masks} ->
-      if String.contains?(inst, "mask") do
-        {mem, parse_mask(inst)}
-      else
-        [addr, value] =
-          Regex.run(@mem_regex, inst)
-          |> tl()
-          |> Enum.map(&String.to_integer/1)
+    Enum.reduce(instructions, {%{}, {0, 0, []}}, fn
+      inst, {mem, {or_mask, and_mask, floatings} = masks} ->
+        if String.contains?(inst, "mask") do
+          {mem, parse_mask(inst)}
+        else
+          [addr, value] =
+            Regex.run(@mem_regex, inst)
+            |> tl()
+            |> Enum.map(&String.to_integer/1)
 
-        # a submask where every X is replaced with a 1 to help identify floating bits
-        fbits = ~~~or_mask &&& and_mask
+          # a value where bits sets to one represent floating bits
+          fbits = ~~~or_mask &&& and_mask
 
-        # apply the mask using an or, as specified in the challenge
-        # and_mask &&& ~~~fbits is computes the mask and the ||| (bitwise or) applies it
-        addrs = permutations(addr ||| (and_mask &&& ~~~fbits), fbits)
+          # apply the mask from part 2 description, then compute permutations
+          addrs = permutations(addr ||| (and_mask &&& ~~~fbits), floatings)
 
-        # Put value in all addresses
-        {Enum.reduce(addrs, mem, fn addr, acc ->
-           Map.put(acc, addr, value)
-         end), masks}
-      end
+          # Put value in all addresses
+          {Enum.reduce(addrs, mem, fn addr, acc ->
+             Map.put(acc, addr, value)
+           end), masks}
+        end
     end)
   end
 
-  def permutations(base, fbits) do
-    permutations(base, fbits, 64)
+  def permutations(addr, []), do: [addr]
+
+  def permutations(addr, [cur | rest]) do
+    permutations(addr &&& (1 <<< 65) - 1 - (1 <<< cur), rest) ++
+      permutations(addr ||| 1 <<< cur, rest)
   end
 
-  # the recursion halts when there is no more floating bits to check
-  def permutations(addr, _fbits, shift) when shift < 0 do
-    [addr]
+  def parse_mask("mask = " <> m) do
+    String.graphemes(m)
+    |> Enum.reverse()
+    |> Enum.with_index()
+    |> reduce_mask()
   end
 
-  # while there is floating bits
-  def permutations(addr, fbits, shift) do
-    # check if current bit is a floating one
-    if (fbits &&& 1 <<< shift) >>> shift == 1 do
-      # and_mask is like setting the current floating bit to 0
-      and_mask = (1 <<< 65) - 1 - (1 <<< shift)
-      # or_mask is like setting the current floating bit to 1
-      or_mask = 1 <<< shift
-
-      # the recursive call collects all sub solutions
-      permutations(addr &&& and_mask, fbits, shift - 1) ++
-        permutations(addr ||| or_mask, fbits, shift - 1)
-    else
-      permutations(addr, fbits, shift - 1)
-    end
-  end
-
-  def parse_mask(mask) do
-    "mask = " <> m = mask
-
-    gm =
-      String.graphemes(m)
-      |> Enum.reverse()
-      |> Enum.with_index()
-
-    {reduce_mask(gm, :or), reduce_mask(gm, :and)}
-  end
-
-  def reduce_mask(mask_indexed, kind) do
-    Enum.reduce(mask_indexed, 0, fn {v, idx}, acc ->
+  def reduce_mask(mask_indexed) do
+    Enum.reduce(mask_indexed, {0, 0, []}, fn {v, idx}, {or_mask, and_mask, floating} ->
       if v == "X" do
-        case kind do
-          :or ->
-            acc ||| 0 <<< idx
-
-          :and ->
-            acc ||| 1 <<< idx
-        end
+        {or_mask ||| 0 <<< idx, and_mask ||| 1 <<< idx, [idx | floating]}
       else
-        acc ||| String.to_integer(v) <<< idx
+        shifted = String.to_integer(v) <<< idx
+        {or_mask ||| shifted, and_mask ||| shifted, floating}
       end
     end)
   end
