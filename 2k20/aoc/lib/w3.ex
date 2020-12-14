@@ -7,13 +7,26 @@ defmodule AOC.D14 do
   def run1(test \\ false) do
     get_input("D14", test)
     |> split_input()
-    |> init()
+    |> init(:values)
     |> (fn {mem, _} -> mem end).()
     |> Enum.reduce(0, fn {_k, v}, acc -> acc + v end)
   end
 
-  def init(instructions) do
-    Enum.reduce(instructions, {%{}, %{}}, fn inst, {mem, masks} ->
+  def init(instructions, :values) do
+    Enum.reduce(instructions, {%{}, {0, 0}}, fn inst, {mem, masks} ->
+      if String.contains?(inst, "mask") do
+        {mem, parse_mask(inst)}
+      else
+        [addr, value] =
+          Regex.run(@mem_regex, inst)
+          |> tl()
+          |> Enum.map(&String.to_integer/1)
+
+        {Map.put(mem, addr, apply_masks(value, masks)), masks}
+      end
+    end)
+  end
+
       if String.contains?(inst, "mask") do
         {mem, parse_mask(inst)}
       else
