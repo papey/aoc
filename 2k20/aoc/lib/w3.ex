@@ -85,3 +85,72 @@ defmodule AOC.D14 do
     end)
   end
 end
+
+defmodule AOC.D15 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    {_state, last_spoken} =
+      get_input("D15", test)
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
+      |> Enum.with_index()
+      |> Enum.reduce({%{}, 0}, fn {v, turn}, {state, _last} ->
+        {Map.put(state, v, {:none, turn + 1}), v}
+      end)
+      |> find_last_spoken(2020)
+
+    last_spoken
+  end
+
+  def run2(test \\ false) do
+    {_state, last_spoken} =
+      get_input("D15", test)
+      |> String.split(",")
+      |> Enum.map(&String.to_integer/1)
+      |> Enum.with_index()
+      |> Enum.reduce({%{}, 0}, fn {v, turn}, {state, _last} ->
+        {Map.put(state, v, {:none, turn + 1}), v}
+      end)
+      |> find_last_spoken(30_000_000)
+
+    last_spoken
+  end
+
+  def find_last_spoken({history, _last_spoken} = initial_state, turns) do
+    Enum.reduce((map_size(history) + 1)..turns, initial_state, fn turn, {history, last_spoken} ->
+      case Map.get(history, last_spoken) do
+        {:none, _} ->
+          {_, previous_turn} = Map.get(history, 0)
+          {Map.put(history, 0, {previous_turn, turn}), 0}
+
+        {pre_previous_turn, previous_turn} ->
+          next_value = previous_turn - pre_previous_turn
+
+          new_state =
+            case Map.get(history, next_value) do
+              {_, previous_turn_in_history} ->
+                Map.put(
+                  history,
+                  next_value,
+                  {previous_turn_in_history, turn}
+                )
+
+              _ ->
+                Map.put(history, next_value, {:none, turn})
+            end
+
+          {new_state, next_value}
+
+        _ ->
+          {_, previous} = Map.get(history, 0)
+
+          new_state =
+            Map.put(history, last_spoken, {:none, turn - 1})
+            |> Map.put(0, {previous, turn})
+
+          {new_state, 0}
+      end
+    end)
+  end
+end
