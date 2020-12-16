@@ -161,23 +161,24 @@ defmodule AOC.D16 do
   @rules_regex ~r/^([a-z ]+): (\d+)-(\d+) or (\d+)-(\d+)/
 
   def run1(test \\ false) do
-    [raw_rules, raw_my, raw_nearby] =
+    [raw_rules, _raw_my, raw_nearby] =
       get_input("D16", test)
       |> String.split("\n\n", trim: true)
 
     rules = parse_rules(raw_rules)
 
-    (parse_tickets(raw_my) ++ parse_tickets(raw_nearby))
+    parse_tickets(raw_nearby)
     |> Enum.reduce(0, fn t, acc ->
       acc + scanning_error(t, rules)
     end)
   end
 
+  def valid_rule?(value, [r1, r2]),
+    do: value in r1 || value in r2
+
   def scanning_error(ticket, rules) do
     Enum.reduce(ticket, 0, fn field, acc ->
-      if !Enum.any?(rules, fn {_name, [{rs1, re1}, {rs2, re2}]} ->
-           (rs1 <= field && field <= re1) || (rs2 <= field && field <= re2)
-         end) do
+      if !Enum.any?(rules, fn {_name, rule} -> valid_rule?(field, rule) end) do
         acc + field
       else
         acc
@@ -193,7 +194,7 @@ defmodule AOC.D16 do
       # rs means range start, re means range end
       [rs1, re1, rs2, re2] = Enum.map(ranges, &String.to_integer/1)
 
-      Map.put(acc, name, [{rs1, re1}, {rs2, re2}])
+      Map.put(acc, name, [rs1..re1, rs2..re2])
     end)
   end
 
