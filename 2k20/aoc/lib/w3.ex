@@ -154,3 +154,56 @@ defmodule AOC.D15 do
     end)
   end
 end
+
+defmodule AOC.D16 do
+  import AOC.Helper.Input
+
+  @rules_regex ~r/^([a-z ]+): (\d+)-(\d+) or (\d+)-(\d+)/
+
+  def run1(test \\ false) do
+    [raw_rules, raw_my, raw_nearby] =
+      get_input("D16", test)
+      |> String.split("\n\n", trim: true)
+
+    rules = parse_rules(raw_rules)
+
+    (parse_tickets(raw_my) ++ parse_tickets(raw_nearby))
+    |> Enum.reduce(0, fn t, acc ->
+      acc + scanning_error(t, rules)
+    end)
+  end
+
+  def scanning_error(ticket, rules) do
+    Enum.reduce(ticket, 0, fn field, acc ->
+      if !Enum.any?(rules, fn {_name, [{rs1, re1}, {rs2, re2}]} ->
+           (rs1 <= field && field <= re1) || (rs2 <= field && field <= re2)
+         end) do
+        acc + field
+      else
+        acc
+      end
+    end)
+  end
+
+  def parse_rules(raw) do
+    String.split(raw, "\n")
+    |> Enum.reduce(%{}, fn v, acc ->
+      [_, name | ranges] = Regex.run(@rules_regex, v)
+
+      # rs means range start, re means range end
+      [rs1, re1, rs2, re2] = Enum.map(ranges, &String.to_integer/1)
+
+      Map.put(acc, name, [{rs1, re1}, {rs2, re2}])
+    end)
+  end
+
+  def parse_tickets(raw) do
+    String.split(raw, "\n")
+    |> tl()
+    |> Enum.map(fn t ->
+      String.split(t, ",")
+      |> Enum.filter(fn v -> v != "" end)
+      |> Enum.map(&String.to_integer/1)
+    end)
+  end
+end
