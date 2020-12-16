@@ -173,6 +173,50 @@ defmodule AOC.D16 do
     end)
   end
 
+  def run2(test \\ false) do
+    [raw_rules, raw_my, raw_nearby] =
+      get_input("D16", test)
+      |> String.split("\n\n", trim: true)
+
+    rules = parse_rules(raw_rules)
+
+    [my_ticket] = parse_tickets(raw_my)
+
+    parse_tickets(raw_nearby)
+    |> Enum.filter(&(scanning_error(&1, rules) == 0))
+    |> find_index_mapping(rules)
+    |> Map.to_list()
+    |> Enum.filter(fn {_id, name} -> String.contains?(name, "departure") end)
+    |> Enum.reduce(1, fn {id, _name}, acc -> acc * Enum.at(my_ticket, id) end)
+  end
+
+  def find_index_mapping(tickets, rules) do
+    possibilities =
+      for idx <- 0..(map_size(rules) - 1),
+          rule <- rules,
+          is_indexed_rule_valid?(tickets, idx, rule),
+          do: {idx, rule}
+
+    {result, _} =
+      Enum.chunk_by(possibilities, fn {idx, _rule} -> idx end)
+      |> Enum.sort(fn v1, v2 -> length(v1) < length(v2) end)
+      |> Enum.reduce({%{}, MapSet.new()}, fn [{idx, _} | _] = candidates, {acc, choosen} ->
+        valid =
+          Enum.map(candidates, fn {_idx, {name, _ranges}} -> name end)
+          |> MapSet.new()
+          |> MapSet.difference(choosen)
+          |> MapSet.to_list()
+          |> List.first()
+
+        {Map.put(acc, idx, valid), MapSet.put(choosen, valid)}
+      end)
+
+    result
+  end
+
+  def is_indexed_rule_valid?(tickets, idx, {_name, ranges}),
+    do: Enum.all?(tickets, &valid_rule?(Enum.at(&1, idx), ranges))
+
   def valid_rule?(value, [r1, r2]),
     do: value in r1 || value in r2
 
