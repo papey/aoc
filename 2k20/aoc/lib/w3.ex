@@ -252,3 +252,93 @@ defmodule AOC.D16 do
     end)
   end
 end
+
+defmodule AOC.D17 do
+  import AOC.Helper.Input
+
+  defmodule Coord do
+    defstruct x: 0, y: 0, z: 0, w: 0
+  end
+
+  def run1(test \\ false) do
+    get_input("D17", test)
+    |> split_input()
+    |> init()
+    |> cycles(6)
+    |> Enum.count()
+  end
+
+  def run2(test \\ false) do
+    get_input("D17", test)
+    |> split_input()
+    |> init()
+    |> cycles(6)
+    |> Enum.count()
+  end
+
+  def cycles(state, 0), do: state
+
+  def cycles(state, turns) do
+    new_state =
+      Enum.reduce(gen_extended_coords(state), %{}, fn coord, nstate ->
+        # neighbors count
+        neighbors = count_neighbors(coord, state)
+
+        cond do
+          # if satellite
+          # check if neighbors count match the rules
+          Map.get(state, coord) && 2 <= neighbors && neighbors <= 3 ->
+            Map.put(nstate, coord, :satellite)
+
+          # if no satellite check if neighbors count is exactly 3
+          neighbors == 3 ->
+            Map.put(nstate, coord, :satellite)
+
+          # cell is empty
+          true ->
+            nstate
+        end
+      end)
+
+    cycles(new_state, turns - 1)
+  end
+
+  def count_neighbors(coord, state) do
+    found =
+      for x <- (coord.x - 1)..(coord.x + 1),
+          y <- (coord.y - 1)..(coord.y + 1),
+          z <- (coord.z - 1)..(coord.z + 1),
+          {x, y, z} != {coord.x, coord.y, coord.z},
+          Map.get(state, %Coord{x: x, y: y, z: z}),
+          do: :found
+
+    Enum.count(found)
+  end
+
+  def gen_extended_coords(state) do
+    for x <- extend_dimension(state, :x),
+        y <- extend_dimension(state, :y),
+        z <- extend_dimension(state, :z),
+        do: %Coord{x: x, y: y, z: z}
+  end
+
+  def extend_dimension(state, dim) do
+    Enum.map(state, fn {coord, _value} -> Map.get(coord, dim) end)
+    |> Enum.min_max()
+    |> to_extended_range()
+  end
+
+  def to_extended_range({a, b}), do: (a - 1)..(b + 1)
+
+  def init(lines) do
+    Enum.with_index(lines)
+    |> Enum.reduce(%{}, fn {line, y}, acc ->
+      String.graphemes(line)
+      |> Enum.with_index()
+      |> Enum.filter(fn {cube, _x} -> cube == "#" end)
+      |> Enum.reduce(acc, fn {_cube, x}, acc ->
+        Map.put(acc, %Coord{x: x, y: y}, :satellite)
+      end)
+    end)
+  end
+end
