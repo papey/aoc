@@ -264,7 +264,7 @@ defmodule AOC.D17 do
     get_input("D17", test)
     |> split_input()
     |> init()
-    |> cycles(6)
+    |> cycles(6, false)
     |> Enum.count()
   end
 
@@ -272,17 +272,17 @@ defmodule AOC.D17 do
     get_input("D17", test)
     |> split_input()
     |> init()
-    |> cycles(6)
+    |> cycles(6, true)
     |> Enum.count()
   end
 
-  def cycles(state, 0), do: state
+  def cycles(state, 0, _extended), do: state
 
-  def cycles(state, turns) do
+  def cycles(state, turns, extended) do
     new_state =
-      Enum.reduce(gen_extended_coords(state), %{}, fn coord, nstate ->
+      Enum.reduce(gen_extended_coords(state, extended), %{}, fn coord, nstate ->
         # neighbors count
-        neighbors = count_neighbors(coord, state)
+        neighbors = count_neighbors(coord, state, extended)
 
         cond do
           # if satellite
@@ -300,26 +300,43 @@ defmodule AOC.D17 do
         end
       end)
 
-    cycles(new_state, turns - 1)
+    cycles(new_state, turns - 1, extended)
   end
 
-  def count_neighbors(coord, state) do
+  def count_neighbors(coord, state, extended \\ false) do
     found =
-      for x <- (coord.x - 1)..(coord.x + 1),
-          y <- (coord.y - 1)..(coord.y + 1),
-          z <- (coord.z - 1)..(coord.z + 1),
-          {x, y, z} != {coord.x, coord.y, coord.z},
-          Map.get(state, %Coord{x: x, y: y, z: z}),
-          do: :found
+      if extended do
+        for x <- (coord.x - 1)..(coord.x + 1),
+            y <- (coord.y - 1)..(coord.y + 1),
+            z <- (coord.z - 1)..(coord.z + 1),
+            w <- (coord.w - 1)..(coord.w + 1),
+            {x, y, z, w} != {coord.x, coord.y, coord.z, coord.w},
+            Map.get(state, %Coord{x: x, y: y, z: z, w: w}),
+            do: :found
+      else
+        for x <- (coord.x - 1)..(coord.x + 1),
+            y <- (coord.y - 1)..(coord.y + 1),
+            z <- (coord.z - 1)..(coord.z + 1),
+            {x, y, z} != {coord.x, coord.y, coord.z},
+            Map.get(state, %Coord{x: x, y: y, z: z}),
+            do: :found
+      end
 
     Enum.count(found)
   end
 
-  def gen_extended_coords(state) do
-    for x <- extend_dimension(state, :x),
-        y <- extend_dimension(state, :y),
-        z <- extend_dimension(state, :z),
-        do: %Coord{x: x, y: y, z: z}
+  def gen_extended_coords(state, extended \\ false) do
+    base =
+      for x <- extend_dimension(state, :x),
+          y <- extend_dimension(state, :y),
+          z <- extend_dimension(state, :z),
+          do: %Coord{x: x, y: y, z: z}
+
+    if extended do
+      for w <- extend_dimension(state, :w), c <- base, do: %Coord{x: c.x, y: c.y, z: c.z, w: w}
+    else
+      base
+    end
   end
 
   def extend_dimension(state, dim) do
