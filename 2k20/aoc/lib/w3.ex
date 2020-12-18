@@ -359,3 +359,41 @@ defmodule AOC.D17 do
     end)
   end
 end
+
+defmodule AOC.D18 do
+  import AOC.Helper.Input
+
+  def run1() do
+    solve([{"*", "-"}])
+  end
+
+  def run2() do
+    solve([{"*", "-"}, {"+", "/"}])
+  end
+
+  def solve(changes) do
+    get_input("D18")
+    |> split_input()
+    |> Enum.map(&replace(&1, changes))
+    |> Enum.map(&Code.string_to_quoted!/1)
+    |> Enum.map(&invert(&1, reverse_changes_map(changes)))
+    |> Enum.map(&Code.eval_quoted/1)
+    |> Enum.reduce(0, fn {res, _}, sum -> res + sum end)
+  end
+
+  def reverse_changes_map(changes) do
+    Enum.reduce(changes, %{}, fn {f, t}, acc ->
+      Map.put(acc, String.to_atom(t), String.to_atom(f))
+    end)
+  end
+
+  def invert(op, _reverse) when is_number(op), do: op
+
+  def invert({op, meta, [d1, d2]}, reverse) do
+    {Map.get(reverse, op) || op, meta, [invert(d1, reverse), invert(d2, reverse)]}
+  end
+
+  def replace(input, changes) do
+    Enum.reduce(changes, input, fn {f, t}, acc -> String.replace(acc, f, t) end)
+  end
+end
