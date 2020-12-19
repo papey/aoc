@@ -118,5 +118,6 @@ defmodule AOCTest do
 
   test "Day 19" do
     assert AOC.D19.run1() == 165
+    assert AOC.D19.run2() == 274
   end
 end

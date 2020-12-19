@@ -409,19 +409,57 @@ defmodule AOC.D19 do
 
     rules = rules_to_map(raw_rules)
 
-    matcher = gen_matcher(rules, "0") |> (fn exp -> "^#{exp}$" end).() |> Regex.compile!()
+    matcher =
+      gen_matcher(rules, "0", false)
+      |> (fn exp -> Enum.join(["^", exp, "$"], "") end).()
+      |> Regex.compile!()
 
     Enum.filter(raw_messages, &Regex.match?(matcher, &1))
     |> Enum.count()
   end
 
-  def gen_matcher(rules, target \\ "0")
-  def gen_matcher(_rules, letter) when letter == "a" or letter == "b" or letter == "|", do: letter
+  def run2(test \\ false) do
+    [raw_rules, raw_messages] =
+      get_input("D19", test)
+      |> String.split("\n\n", trim: true)
+      |> Enum.map(&String.split(&1, "\n"))
 
-  def gen_matcher(rules, target) do
+    rules = rules_to_map(raw_rules)
+
+    matcher =
+      gen_matcher(rules, "0", true)
+      |> (fn exp -> Enum.join(["^", exp, "$"], "") end).()
+      |> Regex.compile!()
+
+    Enum.filter(raw_messages, &Regex.match?(matcher, &1))
+    |> Enum.count()
+  end
+
+  def gen_matcher(rules, target \\ "0", extended \\ false)
+
+  def gen_matcher(rules, "8", true) do
+    Enum.join(["(", gen_matcher(rules, "42", true), ")+"], "")
+  end
+
+  def gen_matcher(rules, "11", true) do
+    Enum.join(
+      [
+        "(?'recurse'(#{gen_matcher(rules, "42", true)})",
+        "(?&recurse)?",
+        "(#{gen_matcher(rules, "31", true)})",
+        ")"
+      ],
+      ""
+    )
+  end
+
+  def gen_matcher(_rules, letter, _extended) when letter == "a" or letter == "b" or letter == "|",
+    do: letter
+
+  def gen_matcher(rules, target, extended) do
     Map.get(rules, target)
     |> String.split(" ", trim: true)
-    |> Enum.map(&gen_matcher(rules, &1))
+    |> Enum.map(&gen_matcher(rules, &1, extended))
     |> case do
       [only] -> only
       list -> "(#{Enum.join(list, "")})"
