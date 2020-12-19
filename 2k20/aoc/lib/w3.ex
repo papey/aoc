@@ -397,3 +397,45 @@ defmodule AOC.D18 do
     Enum.reduce(changes, input, fn {f, t}, acc -> String.replace(acc, f, t) end)
   end
 end
+
+defmodule AOC.D19 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    [raw_rules, raw_messages] =
+      get_input("D19", test)
+      |> String.split("\n\n", trim: true)
+      |> Enum.map(&String.split(&1, "\n"))
+
+    rules = rules_to_map(raw_rules)
+
+    matcher = gen_matcher(rules, "0") |> (fn exp -> "^#{exp}$" end).() |> Regex.compile!()
+
+    Enum.filter(raw_messages, &Regex.match?(matcher, &1))
+    |> Enum.count()
+  end
+
+  def gen_matcher(rules, target \\ "0")
+  def gen_matcher(_rules, letter) when letter == "a" or letter == "b" or letter == "|", do: letter
+
+  def gen_matcher(rules, target) do
+    Map.get(rules, target)
+    |> String.split(" ", trim: true)
+    |> Enum.map(&gen_matcher(rules, &1))
+    |> case do
+      [only] -> only
+      list -> "(#{Enum.join(list, "")})"
+    end
+  end
+
+  def rules_to_map(rules) do
+    Enum.reduce(rules, %{}, fn rule, acc ->
+      [ruleno, inst] =
+        String.split(rule, ":")
+        |> Enum.map(&String.trim/1)
+        |> Enum.map(&String.replace(&1, "\"", ""))
+
+      Map.put(acc, ruleno, inst)
+    end)
+  end
+end
