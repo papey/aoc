@@ -494,6 +494,16 @@ defmodule AOC.D20 do
     |> Enum.reduce(1, &Kernel.*/2)
   end
 
+  def run2(test \\ false) do
+    tiles =
+      get_input("D20", test)
+      |> String.split("\n\n")
+      |> parse_tiles()
+
+    corners = find_corners(tiles)
+    sides = Enum.filter(tiles, fn {id, _} -> id not in corners end)
+  end
+
   # A little bit verbose but it works so 🤷
   def find_corners(tiles) do
     # Map all edges to corresponding tiles
