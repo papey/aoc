@@ -477,3 +477,115 @@ defmodule AOC.D19 do
     end)
   end
 end
+
+defmodule AOC.D20 do
+  import AOC.Helper.Input
+  use Bitwise
+
+  # tile is a square of 10 by 10
+  @len 10
+  @edges_order [:u, :d, :l, :r]
+
+  def run1(test \\ false) do
+    get_input("D20", test)
+    |> String.split("\n\n")
+    |> parse_tiles()
+    # Map all edges to corresponding tiles
+    |> Enum.reduce(%{}, fn {id, tile}, acc ->
+      edges = edges(tile)
+
+      Enum.reduce(edges ++ Enum.map(edges, &flip/1), acc, fn edge, acc ->
+        {_old, acc} =
+          Map.get_and_update(acc, edge, fn old ->
+            if old do
+              {old, [id | old]}
+            else
+              {old, [id]}
+            end
+          end)
+
+        acc
+      end)
+    end)
+    # Filters out singleton
+    |> Enum.filter(fn {_edge, ids} -> length(ids) == 1 end)
+    # A list of one is just the element inside that list
+    |> Enum.map(fn {edge, [id]} -> {edge, id} end)
+    # Reverse the reduce to find how many edges maps this tile id
+    |> Enum.reduce(%{}, fn {_edge, id}, acc ->
+      {_old, acc} =
+        Map.get_and_update(acc, id, fn old ->
+          if old do
+            {old, old + 1}
+          else
+            {old, 1}
+          end
+        end)
+
+      acc
+    end)
+    # filter out candidates
+    |> Enum.filter(fn {_id, match} -> match > 2 && match < 5 end)
+    # reduce
+    |> Enum.reduce(1, fn {id, _}, acc -> acc * id end)
+  end
+
+  @doc """
+  Gets a unique value for each edge of a tile, up, down, left, right
+  """
+  def edges(tile), do: Enum.map(@edges_order, &edge(tile, &1))
+
+  @doc """
+  Get a value for specified edge
+  """
+  def edge(tile, :u),
+    do: Enum.map(0..(@len - 1), &Map.get(tile, {&1, 0})) |> Enum.join("") |> String.to_integer(2)
+
+  def edge(tile, :d),
+    do:
+      Enum.map(0..(@len - 1), &Map.get(tile, {&1, @len - 1}))
+      |> Enum.join("")
+      |> String.to_integer(2)
+
+  def edge(tile, :l),
+    do: Enum.map(0..(@len - 1), &Map.get(tile, {0, &1})) |> Enum.join("") |> String.to_integer(2)
+
+  def edge(tile, :r),
+    do:
+      Enum.map(0..(@len - 1), &Map.get(tile, {@len - 1, &1}))
+      |> Enum.join("")
+      |> String.to_integer(2)
+
+  @doc """
+  Flip an edge
+  """
+  def flip(input),
+    do:
+      Enum.reduce(0..(@len - 1), 0, fn i, acc ->
+        acc ||| (input >>> i &&& 1) <<< (@len - 1 - i)
+      end)
+
+  def parse_tiles(t) do
+    Enum.reduce(t, %{}, fn t, acc ->
+      [title | content] = String.split(t, "\n")
+      [_, id] = Regex.run(~r/Tile (\d+):/, title)
+
+      Map.put(acc, String.to_integer(id), parse_tile(content))
+    end)
+  end
+
+  def parse_tile(content) do
+    Enum.with_index(content)
+    |> Enum.reduce(%{}, fn {raw, y}, acc ->
+      String.graphemes(raw)
+      |> Enum.with_index()
+      |> Enum.reduce(acc, fn {symbol, x}, acc ->
+        if symbol == "#" do
+          Map.put(acc, {x, y}, 1)
+        else
+          Map.put(acc, {x, y}, 0)
+        end
+      end)
+    end)
+  end
+end
