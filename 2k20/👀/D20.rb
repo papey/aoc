@@ -171,6 +171,23 @@ def assemble(tiles, used, picture, row, col, size)
   false
 end
 
+def join(picture, size)
+  # number of tiles
+  ntiles = size / picture[0][0].size
+  joined = Array.new(size) { Array.new(size) }
+
+  (0..size - 1).each do |outr|
+    # inner row
+    ir = (outr / picture[0][0].size).floor
+    # row inside the current tile (inner inner row)
+    iir = (outr % picture[0][0].size)
+
+    # joined the outer row
+    joined[outr] = (0..ntiles - 1).reduce([]) { |acc, ic| acc << picture[ir][ic].row(iir) }.flatten
+  end
+  joined
+end
+
 # compute size
 size = Math.sqrt(tiles.length)
 
@@ -194,7 +211,14 @@ picture = Array.new(size) { Array.new(size) }
   end
 end
 
-puts picture
+picture = join(picture, 8 * size.floor)
 
-# TODO: join
+tile = Tile.new(0, picture, 8 * size.floor)
+
 # TODO: seach for monster
+
+MONSTER = [
+  '                  # ',
+  '#    ##    ##    ###',
+  ' #  #  #  #  #  #   '
+]
