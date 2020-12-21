@@ -124,4 +124,9 @@ defmodule AOCTest do
   test "Day 20" do
     assert AOC.D20.run1() == 15_670_959_891_893
   end
+
+  test "Day 21" do
+    assert AOC.D21.run1() == 2428
+    assert AOC.D21.run2() == "bjq,jznhvh,klplr,dtvhzt,sbzd,tlgjzx,ctmbr,kqms"
+  end
 end
