@@ -144,7 +144,7 @@ def assemble(tiles, used, picture, row, col, size)
       # check left, if not needed it's a match (true by default)
       lfit = col > 0 ? combi.match_edge?(:l, picture[row][col - 1]) : true
       # check down, if not needed it's a match (true by default)
-      ufit = row > 0 ? combi.match_edge?(:d, picture[row - 1][col]) : true
+      ufit = row > 0 ? combi.match_edge?(:u, picture[row - 1][col]) : true
 
       # match
       if lfit && ufit then
@@ -152,7 +152,7 @@ def assemble(tiles, used, picture, row, col, size)
         nrow = ((size*row + col + 1) / size).floor
         ncol = ((col + 1) % size).floor
         # check if a subsolution exists
-        return true if assemble(tiles, used, picture, nrow, ncol.floor, size)
+        return true if assemble(tiles, used, picture, nrow, ncol, size)
       end
     end
 
