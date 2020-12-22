@@ -136,6 +136,50 @@ defmodule AOC.D22 do
     |> Enum.reduce(0, fn {v, i}, acc -> acc + v * i end)
   end
 
+  def run2(test \\ false) do
+    [p1, p2] =
+      get_input("D22", test)
+      |> String.split("\n\n")
+
+    d1 = parse_deck(p1)
+    d2 = parse_deck(p2)
+
+    play(d1, d2, MapSet.new())
+    |> (fn {_, deck} -> deck end).()
+    |> Enum.reverse()
+    |> Enum.with_index(1)
+    |> Enum.reduce(0, fn {v, i}, acc -> acc + v * i end)
+  end
+
+  def play([], d2, _seen), do: {:p2, d2}
+
+  def play(d1, [], _seen), do: {:p1, d1}
+
+  def play([c1 | r1] = d1, [c2 | r2] = d2, seen) do
+    cond do
+      MapSet.member?(seen, {d1, d2}) ->
+        {:p1, d1}
+
+      c1 <= length(r1) && c2 <= length(r2) ->
+        nd1 = Enum.take(r1, c1)
+        nd2 = Enum.take(r2, c2)
+
+        case play(nd1, nd2, MapSet.new()) do
+          {:p1, _} ->
+            play(r1 ++ [c1, c2], r2, MapSet.put(seen, {d1, d2}))
+
+          {:p2, _} ->
+            play(r1, r2 ++ [c2, c1], MapSet.put(seen, {d1, d2}))
+        end
+
+      c1 > c2 ->
+        play(r1 ++ [c1, c2], r2, MapSet.put(seen, {d1, d2}))
+
+      true ->
+        play(r1, r2 ++ [c2, c1], MapSet.put(seen, {d1, d2}))
+    end
+  end
+
   def round(_n, d1, []), do: d1
 
   def round(_n, [], d2), do: d2

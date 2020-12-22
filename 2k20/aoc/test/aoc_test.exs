@@ -123,6 +123,7 @@ defmodule AOCTest do
 
   test "Day 20" do
     assert AOC.D20.run1() == 15_670_959_891_893
+    # look at 👀, for the rest 🤷
   end
 
   test "Day 21" do
