@@ -97,13 +97,6 @@ class Tile
     nil
   end
 
-  def match_all(target)
-    target.combinations.flat_map do |combi|
-      EDGES.map do |edge|
-        [edge, combi] if self.match_edge? edge, combi
-      end.compact
-    end
-  end
 end
 
 # input parsing
@@ -134,7 +127,7 @@ puts counter.select { _2 == 2 }.map { |k, _v| k}.reduce(1) { |product, id| produ
 # ---
 # assemble using a backtrack algorithm
 def assemble(tiles, used, picture, row, col, size)
-  # end recursion if end of reach end of col or row
+  # end recursion col or row is outside the grid
   return true if col == size || row == size
 
   tiles.each do |tile|
@@ -214,8 +207,6 @@ end
 picture = join(picture, 8 * size.floor)
 
 tile = Tile.new(0, picture, 8 * size.floor)
-
-# TODO: seach for monster
 
 MONSTER = [
   '                  # ',
