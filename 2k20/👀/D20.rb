@@ -180,7 +180,7 @@ end
 
 # print part 1 answer
 # ---
-puts counter.select { _2 == 2 }.map { |k, _v| k}.reduce(1) { |product, id| product * id}
+puts counter.select { _2 == 2 }.map { |k, _v| k}.reduce(1) { |product, id| product * id }
 
 # part 2 resolution
 # ---
@@ -279,7 +279,7 @@ tile.combinations.each do |combi|
   result = combi.search m
   if result[0] != 0 then
     # puts result
-    puts tile.count_waters - result[0] * MONSTER.reduce(0) { |acc, row| acc + row.chars.filter { |pix| pix == "#"}.count }
+    puts tile.count_waters - result[0] * MONSTER.reduce(0) { |acc, row| acc + row.chars.filter { |pix| pix == "#" }.count }
     # puts final tile with monster
     puts result[1]
     exit 0
