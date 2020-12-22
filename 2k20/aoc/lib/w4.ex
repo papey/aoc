@@ -118,3 +118,39 @@ defmodule AOC.D21 do
     {ingredients, allergens}
   end
 end
+
+defmodule AOC.D22 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    [p1, p2] =
+      get_input("D22", test)
+      |> String.split("\n\n")
+
+    d1 = parse_deck(p1)
+    d2 = parse_deck(p2)
+
+    round(0, d1, d2)
+    |> Enum.reverse()
+    |> Enum.with_index(1)
+    |> Enum.reduce(0, fn {v, i}, acc -> acc + v * i end)
+  end
+
+  def round(_n, d1, []), do: d1
+
+  def round(_n, [], d2), do: d2
+
+  def round(n, [c1 | d1], [c2 | d2]) do
+    if c1 > c2 do
+      round(n + 1, d1 ++ [c1, c2], d2)
+    else
+      round(n + 1, d1, d2 ++ [c2, c1])
+    end
+  end
+
+  def parse_deck(list) do
+    String.split(list, "\n")
+    |> tl()
+    |> Enum.map(&String.to_integer/1)
+  end
+end
