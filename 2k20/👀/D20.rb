@@ -46,7 +46,7 @@ class Tile
   end
 
   def to_s
-    rows.reduce("#{id}\n") { |acc, row| "#{acc}\n#{row.join("")}" }
+    rows.reduce("") { |acc, row| "#{acc}\n#{row.join("")}" }
   end
 
   def crop
