@@ -17,6 +17,10 @@ class Tile
     @size = size
   end
 
+  def copy
+    self.class.new id, pixels, size
+  end
+
   def at(x, y)
     pixels[x][y]
   end
@@ -95,6 +99,61 @@ class Tile
       end
     end
     nil
+  end
+
+  def search(monster)
+    # a copy where monster can be replaced
+    with_monster = self.copy
+
+    # found counter
+    found = 0
+
+    # monster x size
+    w = monster[0].length
+    # monster y size
+    h = monster.length
+
+    # for each combination of coords where a monster can be contained
+    xx = (0..size - w).to_a
+    xy = (0..size - h).to_a
+    (xx.product xy).each do |x, y|
+      # it's a monster until it's not
+      is_monster = true
+      # a set a of coord for this monster
+      mpos = []
+
+      # for each monster pixel
+      monster.each_with_index do |mrow, my|
+        mrow.each_with_index do |mpixel, mx|
+          # if it's not monster pixel, go next
+          next if mpixel == " "
+
+          # if it's a monster pixel, check if shifted coords contains the # pixel
+          if self.at(x + mx, y + my) != "#" then
+            # if not it's not a monster
+            is_monster = false
+            break
+          end
+
+          # save pos
+          mpos << [y + my, x + mx]
+        end
+
+        # no need to continue if not a monster
+        break unless is_monster
+      end
+      if is_monster then
+        found += 1
+        mpos.each do |y, x|
+          with_monster.pixels[y][x] = "●"
+        end
+      end
+    end
+    [found, with_monster]
+  end
+
+  def count_waters()
+    self.rows.reduce(0) { |acc, r| acc + r.filter { |pix| pix == "#" }.count }
   end
 
 end
@@ -213,3 +272,16 @@ MONSTER = [
   '#    ##    ##    ###',
   ' #  #  #  #  #  #   '
 ]
+
+m = MONSTER.map(&:chars)
+
+tile.combinations.each do |combi|
+  result = combi.search m
+  if result[0] != 0 then
+    # puts result
+    puts tile.count_waters - result[0] * MONSTER.reduce(0) { |acc, row| acc + row.chars.filter { |pix| pix == "#"}.count }
+    # puts final tile with monster
+    puts result[1]
+    exit 0
+  end
+end
