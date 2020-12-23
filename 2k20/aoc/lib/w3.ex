@@ -494,6 +494,10 @@ defmodule AOC.D20 do
     |> Enum.reduce(1, &Kernel.*/2)
   end
 
+  def run2() do
+    "Ruby ftw !"
+  end
+
   # A little bit verbose but it works so 🤷
   def find_corners(tiles) do
     # Map all edges to corresponding tiles
