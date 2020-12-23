@@ -202,6 +202,8 @@ end
 defmodule AOC.D23 do
   import AOC.Helper.Input
 
+  @size 1_000_000
+
   def run1(test \\ false) do
     turns = 100
     len = 8
@@ -216,6 +218,56 @@ defmodule AOC.D23 do
     |> Stream.drop_while(&(&1 != 1))
     |> Enum.slice(1, len)
     |> Enum.join("")
+  end
+
+  def run2(test \\ false) do
+    turns = 10_000_000
+
+    list =
+      get_input("D23", test)
+      |> String.split("")
+      |> Enum.filter(fn v -> v != "" end)
+      |> Enum.map(&String.to_integer/1)
+
+    cups = init(list, length(list)..@size)
+
+    {_, final, _} =
+      Stream.iterate({List.first(list), cups, 0}, &moves/1)
+      |> Enum.at(turns)
+
+    Map.get(final, 1) * Map.get(final, Map.get(final, 1))
+  end
+
+  def init(init, rstart..rend) do
+    cups = init ++ Enum.to_list((rstart + 1)..rend)
+
+    values =
+      Enum.slice(init, 1, length(init)) ++ Enum.to_list((rstart + 1)..rend) ++ [Enum.at(init, 0)]
+
+    Enum.zip(cups, values)
+    |> Enum.into(%{})
+  end
+
+  def moves({current, cups, turns}, size \\ @size) do
+    {_, data} =
+      Enum.reduce(0..3, {current, []}, fn _, {current, data} ->
+        next = Map.get(cups, current)
+        {next, data ++ [next]}
+      end)
+
+    {pickups, [next]} = Enum.split(data, 3)
+
+    max =
+      Enum.reduce(Enum.sort([current | pickups]), size, fn candidate, max ->
+        if candidate == max, do: max - 1, else: max
+      end)
+
+    dst = destination(current - 1, pickups, 1, max)
+
+    {next,
+     Map.put(cups, current, next)
+     |> Map.put(dst, hd(pickups))
+     |> Map.put(List.last(pickups), Map.get(cups, dst)), turns + 1}
   end
 
   def rounds([current, p1, p2, p3 | rest] = list) do

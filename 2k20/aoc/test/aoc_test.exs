@@ -139,5 +139,6 @@ defmodule AOCTest do
 
   test "Day 23" do
     assert AOC.D23.run1() == "27956483"
+    assert AOC.D23.run2() == 18_930_983_775
   end
 end
