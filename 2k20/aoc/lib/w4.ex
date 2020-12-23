@@ -198,3 +198,46 @@ defmodule AOC.D22 do
     |> Enum.map(&String.to_integer/1)
   end
 end
+
+defmodule AOC.D23 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    turns = 100
+    len = 8
+
+    get_input("D23", test)
+    |> String.split("")
+    |> Enum.filter(fn v -> v != "" end)
+    |> Enum.map(&String.to_integer/1)
+    |> Stream.iterate(&rounds/1)
+    |> Enum.at(turns)
+    |> Stream.cycle()
+    |> Stream.drop_while(&(&1 != 1))
+    |> Enum.slice(1, len)
+    |> Enum.join("")
+  end
+
+  def rounds([current, p1, p2, p3 | rest] = list) do
+    dst = destination(current - 1, [p1, p2, p3], Enum.min(list), Enum.max(rest))
+
+    next =
+      Stream.cycle([current | rest])
+      |> Stream.drop_while(&(&1 != dst))
+      |> Enum.slice(1, length(list) - 3)
+
+    Stream.cycle([p1, p2, p3 | next])
+    |> Stream.drop_while(&(&1 != current))
+    |> Enum.slice(1, length(list))
+  end
+
+  def destination(current, _pickups, min, max) when current < min, do: max
+
+  def destination(current, pickups, min, max) do
+    if current in pickups do
+      destination(current - 1, pickups, min, max)
+    else
+      current
+    end
+  end
+end
