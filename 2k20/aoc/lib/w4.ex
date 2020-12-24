@@ -293,3 +293,129 @@ defmodule AOC.D23 do
     end
   end
 end
+
+defmodule AOC.D24 do
+  import AOC.Helper.Input
+
+  @dir %{
+    "e" => {1, 0},
+    "w" => {-1, 0},
+    "se" => {0, 1},
+    "sw" => {-1, 1},
+    "nw" => {0, -1},
+    "ne" => {1, -1}
+  }
+
+  def run1(test \\ false) do
+    get_input("D24", test)
+    |> split_input()
+    |> Enum.reduce(%{}, fn instruction, tiles ->
+      dir = build_path(instruction)
+
+      case Map.get(tiles, dir) do
+        nil ->
+          Map.put(tiles, dir, true)
+
+        state ->
+          Map.put(tiles, dir, !state)
+      end
+    end)
+    |> Enum.count(fn {_key, v} -> v == true end)
+  end
+
+  def run2(test \\ false) do
+    get_input("D24", test)
+    |> split_input()
+    |> Enum.reduce(%{}, fn instruction, tiles ->
+      dir = build_path(instruction)
+
+      discovered = discover(tiles, dir)
+
+      case Map.get(discovered, dir) do
+        nil ->
+          Map.put(discovered, dir, true)
+
+        state ->
+          Map.put(discovered, dir, !state)
+      end
+    end)
+    |> days(100)
+    |> Enum.count(fn {_key, v} -> v == true end)
+  end
+
+  def days(map, 0), do: map
+
+  def days(map, target) do
+    next =
+      Enum.reduce(map, map, fn {pos, is_black}, next ->
+        neighbours = nb(map, pos)
+
+        discovered = discover(next, pos)
+
+        cond do
+          is_black && (neighbours == 0 || neighbours > 2) ->
+            Map.put(discovered, pos, false)
+
+          !is_black && neighbours == 2 ->
+            Map.put(discovered, pos, true)
+
+          true ->
+            discovered
+        end
+      end)
+
+    days(next, target - 1)
+  end
+
+  def discover(map, {q, r}) do
+    discovery = for {_key, dir} <- @dir, do: dir
+
+    Enum.reduce(discovery, map, fn {dq, dr}, next ->
+      if Map.get(next, {q + dq, r + dr}) do
+        next
+      else
+        Map.put(next, {q + dq, r + dr}, false)
+      end
+    end)
+  end
+
+  def nb(map, {q, r}) do
+    neighbours = for {_key, {dq, dr}} <- @dir, do: Map.get(map, {dq + q, dr + r})
+
+    Enum.count(neighbours, fn v -> v == true end)
+  end
+
+  def build_path(instruction), do: build_path(instruction, {0, 0})
+
+  def build_path("", dir), do: dir
+
+  def build_path("e" <> rest, {dq, dr}) do
+    {qq, rr} = Map.get(@dir, "e")
+    build_path(rest, {dq + qq, dr + rr})
+  end
+
+  def build_path("w" <> rest, {dq, dr}) do
+    {qq, rr} = Map.get(@dir, "w")
+    build_path(rest, {dq + qq, dr + rr})
+  end
+
+  def build_path("se" <> rest, {dq, dr}) do
+    {qq, rr} = Map.get(@dir, "se")
+    build_path(rest, {dq + qq, dr + rr})
+  end
+
+  def build_path("sw" <> rest, {dq, dr}) do
+    {qq, rr} = Map.get(@dir, "sw")
+    build_path(rest, {dq + qq, dr + rr})
+  end
+
+  def build_path("nw" <> rest, {dq, dr}) do
+    {qq, rr} = Map.get(@dir, "nw")
+    build_path(rest, {dq + qq, dr + rr})
+  end
+
+  def build_path("ne" <> rest, {dq, dr}) do
+    {qq, rr} = Map.get(@dir, "ne")
+    build_path(rest, {dq + qq, dr + rr})
+  end
+end
