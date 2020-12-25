@@ -146,4 +146,9 @@ defmodule AOCTest do
     assert AOC.D24.run1() == 469
     assert AOC.D24.run2() == 4353
   end
+
+  test "Day 25" do
+    assert AOC.D25.run1() == 181_800
+    assert AOC.D25.run2() == "Merry Xmas !"
+  end
 end

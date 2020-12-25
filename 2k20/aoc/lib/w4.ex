@@ -419,3 +419,33 @@ defmodule AOC.D24 do
     build_path(rest, {dq + qq, dr + rr})
   end
 end
+
+defmodule AOC.D25 do
+  import AOC.Helper.Input
+
+  def run1(test \\ false) do
+    [cpubk, dpubk] =
+      get_input("D25", test)
+      |> split_input()
+      |> Enum.map(&String.to_integer/1)
+
+    transforms(cpubk, 7, 1, 1)
+    |> encryption_key(0, dpubk, 1)
+  end
+
+  def run2() do
+    "Merry Xmas !"
+  end
+
+  def encryption_key(lsize, count, _subject, value) when lsize == count, do: value
+
+  def encryption_key(lsize, count, subject, value) do
+    encryption_key(lsize, count + 1, subject, rem(value * subject, 20_201_227))
+  end
+
+  def transforms(pubkey, _subject, lsize, value) when pubkey == value, do: lsize - 1
+
+  def transforms(pubkey, subject, lsize, value) do
+    transforms(pubkey, subject, lsize + 1, rem(value * subject, 20_201_227))
+  end
+end
