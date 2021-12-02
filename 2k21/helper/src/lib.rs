@@ -26,6 +26,10 @@ impl Input {
     pub fn transform<T>(&self, f: fn(input: String) -> T) -> Vec<T> {
         self.lines.clone().into_iter().map(|line| f(line)).collect()
     }
+
+    pub fn lines(&self) -> Vec<String> {
+        self.lines.clone()
+    }
 }
 
 #[cfg(test)]
