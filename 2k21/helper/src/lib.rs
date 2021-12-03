@@ -30,6 +30,14 @@ impl Input {
     pub fn lines(&self) -> Vec<String> {
         self.lines.clone()
     }
+
+    pub fn input_len(&self) -> usize {
+        self.lines.len()
+    }
+
+    pub fn entry_len(&self) -> usize {
+        self.lines[0].len()
+    }
 }
 
 #[cfg(test)]
