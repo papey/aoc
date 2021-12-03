@@ -44,8 +44,10 @@ fn filter_candidates(
     if candidates.len() <= 1 {
         return;
     }
+
     let freqs = frequencies(&candidates, index);
     let common = compare(freqs[0], freqs[1]);
+
     candidates.retain(|elem| elem >> index & 0x1 == (common as isize));
 }
 
