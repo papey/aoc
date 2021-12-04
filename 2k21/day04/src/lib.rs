@@ -22,38 +22,28 @@ fn part1(input: Input) -> usize {
 #[allow(dead_code)]
 fn part2(input: Input) -> usize {
     let (numbers, boards) = parse_input(input);
-    let mut winners: Vec<usize> = Vec::new();
-    // track elements using a tuple of (board, bool) where board represent a board and bool is this board already wins or not
     let mut tracker: Vec<(Board, bool)> = boards.into_iter().map(|b| (b, false)).collect();
-    // max_winners is the numbers of boards
-    let max_winners = tracker.len();
 
-    for n in numbers {
-        for (b, win) in tracker.iter_mut() {
-            // if win, just continue
-            if *win {
-                continue;
-            }
+    *numbers
+        .iter()
+        .flat_map(|n| {
+            tracker
+                .iter_mut()
+                .filter(|(_, state)| *state == false)
+                .filter_map(|(b, state)| {
+                    b.mark(*n);
+                    if b.is_winning() {
+                        *state = true;
+                        return Some(b.bingo(*n).clone());
+                    }
 
-            // mark number in this board
-            b.mark(n);
-
-            // if win, mark as win and push result
-            if b.is_winning() {
-                *win = true;
-                winners.push(b.bingo(n))
-            }
-
-            // if all boards are winners
-            if max_winners == winners.len() {
-                // pop result
-                return winners.pop().unwrap();
-            }
-        }
-    }
-
-    // input is considered safe
-    unreachable!()
+                    None
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>()
+        .last()
+        .unwrap()
 }
 
 const BOARD_LEN: usize = 5;
