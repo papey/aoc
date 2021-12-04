@@ -18,6 +18,43 @@ fn part1(input: Input) -> usize {
     unreachable!()
 }
 
+#[allow(dead_code)]
+fn part2(input: Input) -> usize {
+    let (numbers, boards) = parse_input(input);
+    let mut winners: Vec<usize> = Vec::new();
+    // track elements using a tuple of (board, bool) where board represent a board and bool is this board already wins or not
+    let mut tracker: Vec<(Board, bool)> = boards.into_iter().map(|b| (b, false)).collect();
+    // max_winners is the numbers of boards
+    let max_winners = tracker.len();
+
+    for n in numbers {
+        for (b, win) in tracker.iter_mut() {
+            // if win, just continue
+            if *win {
+                continue;
+            }
+
+            // mark number in this board
+            b.mark(n);
+
+            // if win, mark as win and push result
+            if b.is_winning() {
+                *win = true;
+                winners.push(b.bingo(n))
+            }
+
+            // if all boards are winners
+            if max_winners == winners.len() {
+                // pop result
+                return winners.pop().unwrap();
+            }
+        }
+    }
+
+    // input is considered safe
+    unreachable!()
+}
+
 const BOARD_LEN: usize = 5;
 
 type Numbers = Vec<usize>;
@@ -135,5 +172,14 @@ mod tests {
 
         let input = Input::new("./inputs/input.txt".to_string(), 4, 2021).unwrap();
         assert_eq!(super::part1(input), 16674);
+    }
+
+    #[test]
+    fn test_p2() {
+        let test_input = Input::new("./inputs/test.txt".to_string(), 4, 2021).unwrap();
+        assert_eq!(super::part2(test_input), 1924);
+
+        let input = Input::new("./inputs/input.txt".to_string(), 4, 2021).unwrap();
+        assert_eq!(super::part2(input), 7075);
     }
 }
