@@ -5,8 +5,6 @@ use regex::Regex;
 fn part1(input: Input) -> usize {
     let (numbers, mut boards) = parse_input(input);
 
-    print!("\n{:?}\n", boards);
-
     for n in numbers {
         for board in &mut boards {
             board.mark(n);
