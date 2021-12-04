@@ -5,17 +5,18 @@ use regex::Regex;
 fn part1(input: Input) -> usize {
     let (numbers, mut boards) = parse_input(input);
 
-    for n in numbers {
-        for board in &mut boards {
-            board.mark(n);
-            if board.is_winning() {
-                return board.bingo(n);
-            }
-        }
-    }
-
-    // input is considered safe
-    unreachable!()
+    numbers
+        .iter()
+        .find_map(|n| {
+            boards.iter_mut().find_map(|b| {
+                b.mark(*n);
+                if b.is_winning() {
+                    return Some(b.bingo(*n));
+                }
+                None
+            })
+        })
+        .unwrap()
 }
 
 #[allow(dead_code)]
