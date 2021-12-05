@@ -1,5 +1,6 @@
 use std::fs;
 use std::io;
+use std::iter::Iterator;
 
 #[allow(dead_code)]
 pub struct Input {
@@ -23,8 +24,8 @@ impl Input {
         })
     }
 
-    pub fn transform<T>(&self, f: fn(input: String) -> T) -> Vec<T> {
-        self.lines.clone().into_iter().map(|line| f(line)).collect()
+    pub fn transform<T>(&self, f: fn(input: String) -> T) -> impl Iterator<Item = T> {
+        self.lines.clone().into_iter().map(move |line| f(line))
     }
 
     pub fn lines(&self) -> Vec<String> {
