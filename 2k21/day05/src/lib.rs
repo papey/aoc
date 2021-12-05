@@ -9,7 +9,6 @@ use std::str::FromStr;
 fn part1(input: Input) -> usize {
     input
         .transform(|line| line.parse::<Vent>().unwrap())
-        .into_iter()
         .filter(|v| v.p1.x == v.p2.x || v.p1.y == v.p2.y)
         .fold(HashMap::new(), |clouds, vent| {
             if vent.p1.x == vent.p2.x {
