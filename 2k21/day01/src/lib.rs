@@ -4,6 +4,7 @@ use helper::Input;
 fn part1(input: Input) -> usize {
     input
         .transform(|line: String| line.parse::<usize>().unwrap())
+        .collect::<Vec<_>>()
         .windows(2)
         .filter(|w| w[0] < w[1])
         .count()
@@ -13,6 +14,7 @@ fn part1(input: Input) -> usize {
 fn part2(input: Input) -> usize {
     input
         .transform(|line: String| line.parse::<usize>().unwrap())
+        .collect::<Vec<_>>()
         .windows(4)
         .filter(|w| w[0] < w[3])
         .count()

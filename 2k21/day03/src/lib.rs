@@ -6,7 +6,9 @@ fn part1(input: Input) -> usize {
     let mut epsilon = 0;
     let size = input.entry_len();
 
-    let data = input.transform(|line| isize::from_str_radix(line.as_str(), 2).unwrap());
+    let data = input
+        .transform(|line| isize::from_str_radix(line.as_str(), 2).unwrap())
+        .collect::<Vec<_>>();
 
     for i in (0..size).rev() {
         let freqs = frequencies(&data, i);
@@ -22,7 +24,9 @@ fn part1(input: Input) -> usize {
 fn part2(input: Input) -> usize {
     let size = input.entry_len();
 
-    let mut oxygen_data = input.transform(|line| isize::from_str_radix(line.as_str(), 2).unwrap());
+    let mut oxygen_data = input
+        .transform(|line| isize::from_str_radix(line.as_str(), 2).unwrap())
+        .collect::<Vec<_>>();
     let mut scrubber_data = oxygen_data.clone();
 
     for i in (0..size).rev() {
