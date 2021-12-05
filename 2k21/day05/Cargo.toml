@@ -9,3 +9,4 @@ edition = "2021"
 lazy_static = "1.4"
 regex = "1"
 helper = { path = "../helper" }
+itertools = "0.10.1"
