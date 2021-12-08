@@ -3,7 +3,7 @@ use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 
 const SEPARATOR: &str = "|";
-const DIGIT_OUPUT_LEN: usize = 4;
+const DIGIT_OUPUT_LEN: u32 = 4;
 
 lazy_static! {
     // 2 segments -> 1, 4 segments -> 4, 3 segments -> 7, 7 segments -> 8
@@ -47,7 +47,7 @@ fn part2(input: Input) -> usize {
                 .map(|e| String::from(e))
                 .enumerate()
                 .fold(0, |acc, (index, letters)| {
-                    let shift: usize = (10 as usize).pow((DIGIT_OUPUT_LEN - index - 1) as u32);
+                    let shift: usize = (10usize).pow(DIGIT_OUPUT_LEN - index as u32 - 1);
                     acc + mapping
                         .get(&SortableString::from(letters).sort())
                         .unwrap_or(&0)
@@ -70,31 +70,15 @@ fn find_segments_mapping(inputs: Vec<String>) -> HashMap<String, usize> {
     inputs
         .iter()
         .fold(HashMap::new(), |mut mapping, code| {
-            let candidate = UNIQUE_SEGMENTS_TO_DIGITS
-                .iter()
-                .find_map(|(segments, value)| {
-                    if *segments != code.len() {
-                        return None;
-                    }
-
-                    Some(value)
-                });
-
-            // simple case, there is no overlap
-            if let Some(digit) = candidate {
-                mapping.insert(*digit, String::from(code));
-                return mapping;
-            }
-
-            // get letters for this input
-            let letters = code.chars().fold(HashSet::new(), |mut acc, letter| {
-                acc.insert(letter);
-                acc
-            });
-
             // find value using intersections from known digits
             let value = match code.len() {
+                2 => 1,
+                4 => 4,
+                3 => 7,
+                7 => 8,
                 5 => {
+                    let letters = string_to_set(&code);
+
                     if letters.intersection(&overlaps[1]).count() == 2 {
                         3
                     } else if letters.intersection(&overlaps[4]).count() == 2 {
@@ -104,6 +88,8 @@ fn find_segments_mapping(inputs: Vec<String>) -> HashMap<String, usize> {
                     }
                 }
                 6 => {
+                    let letters = string_to_set(&code);
+
                     if letters.intersection(&overlaps[1]).count() == 1 {
                         6
                     } else if letters.intersection(&overlaps[4]).count() == 4 {
@@ -149,6 +135,13 @@ fn init_overlaps_sets(inputs: &Vec<String>) -> Vec<HashSet<char>> {
                 })
         },
     )
+}
+
+fn string_to_set(string: &String) -> HashSet<char> {
+    string.chars().fold(HashSet::new(), |mut acc, letter| {
+        acc.insert(letter);
+        acc
+    })
 }
 
 struct SortableString {
