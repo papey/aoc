@@ -28,10 +28,9 @@ fn part2(input: Input) -> usize {
                 return None;
             }
 
-            let result = stack
-                .iter()
-                .rev()
-                .fold(0, |acc, value| acc * 5 + scoring.get(value).unwrap_or(&0));
+            let result = stack.iter().rev().fold(0, |acc, value| {
+                acc * MULTIPLIER + scoring.get(value).unwrap_or(&0)
+            });
 
             Some(result)
         })
