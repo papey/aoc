@@ -7,8 +7,8 @@ type Octopuses = HashMap<Coords, u32>;
 #[derive(Debug)]
 struct Grid {
     map: Octopuses,
-    len: usize,
-    width: usize,
+    len: isize,
+    width: isize,
 }
 
 const MAX_ENERGY: u32 = 9;
@@ -28,8 +28,8 @@ impl Grid {
 
         Grid {
             map: octos,
-            len: input.entry_len(),
-            width: input.input_len(),
+            len: input.entry_len() as isize,
+            width: input.input_len() as isize,
         }
     }
 
@@ -93,11 +93,11 @@ const DIRECTIONS: [(isize, isize); 8] = [
     (-1, -1),
 ];
 
-fn neighbors(width: usize, len: usize, x: usize, y: usize) -> impl Iterator<Item = (usize, usize)> {
+fn neighbors(width: isize, len: isize, x: usize, y: usize) -> impl Iterator<Item = (usize, usize)> {
     DIRECTIONS.iter().filter_map(move |(dx, dy)| {
         let nx: isize = x as isize + dx;
         let ny: isize = y as isize + dy;
-        if nx > len as isize || nx < 0 || ny > width as isize || ny < 0 {
+        if nx > len || nx < 0 || ny > width || ny < 0 {
             return None;
         }
 
