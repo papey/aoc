@@ -79,7 +79,7 @@ fn neighbors(len: isize, width: isize, x: usize, y: usize) -> impl Iterator<Item
         let nx = x as isize + dx;
         let ny = y as isize + dy;
 
-        if nx < 0 || nx > (len - 1) || ny < 0 || ny > (width - 1) {
+        if nx < 0 || nx >= len || ny < 0 || ny >= width {
             return None;
         }
 
