@@ -39,6 +39,10 @@ impl Input {
     pub fn entry_len(&self) -> usize {
         self.lines[0].len()
     }
+
+    pub fn first(&self) -> String {
+        self.lines[0].clone()
+    }
 }
 
 #[cfg(test)]
