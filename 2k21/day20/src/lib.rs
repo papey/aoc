@@ -5,26 +5,24 @@ use std::collections::HashSet;
 fn part1(input: Input) -> usize {
     let (algorithm, img) = transform(&input);
 
-    let mut result = img.clone();
-
-    for turn in 0..2 {
-        result = result.expanse(&algorithm, turn);
-    }
-
-    result.lpixels()
+    (0..2)
+        .fold((&algorithm, img), |(algo, img), i| {
+            (algo, img.expanse(algo, i))
+        })
+        .1
+        .lpixels()
 }
 
 #[allow(dead_code)]
 fn part2(input: Input) -> usize {
     let (algorithm, img) = transform(&input);
 
-    let mut result = img.clone();
-
-    for turn in 0..50 {
-        result = result.expanse(&algorithm, turn);
-    }
-
-    result.lpixels()
+    (0..50)
+        .fold((&algorithm, img), |(algo, img), i| {
+            (algo, img.expanse(algo, i))
+        })
+        .1
+        .lpixels()
 }
 
 const DELTAS: [(isize, isize); 9] = [
@@ -48,15 +46,6 @@ struct Image {
     data: Pixels,
     xsize: (isize, isize),
     ysize: (isize, isize),
-}
-
-fn borders(pixels: &Pixels) -> ((isize, isize), (isize, isize)) {
-    let (xmin, _) = pixels.iter().min_by(|(x1, _), (x2, _)| x1.cmp(x2)).unwrap();
-    let (xmax, _) = pixels.iter().max_by(|(x1, _), (x2, _)| x1.cmp(x2)).unwrap();
-    let (_, ymin) = pixels.iter().min_by(|(_, y1), (_, y2)| y1.cmp(y2)).unwrap();
-    let (_, ymax) = pixels.iter().max_by(|(_, y1), (_, y2)| y1.cmp(y2)).unwrap();
-
-    ((*xmin, *xmax), (*ymin, *ymax))
 }
 
 impl Image {
@@ -117,6 +106,7 @@ impl Image {
     fn is_outside_borders(&self, x: isize, y: isize) -> bool {
         x < self.xsize.0 || x > self.xsize.1 || y < self.ysize.0 || y > self.ysize.1
     }
+
     fn is_light(&self, (x, y): (isize, isize), algo: &Algo, default_void: bool) -> bool {
         let index = DELTAS
             .map(|(dx, dy)| (x + dx, y + dy))
@@ -131,6 +121,15 @@ impl Image {
 
         algo[index]
     }
+}
+
+fn borders(pixels: &Pixels) -> ((isize, isize), (isize, isize)) {
+    let (xmin, _) = pixels.iter().min_by(|(x1, _), (x2, _)| x1.cmp(x2)).unwrap();
+    let (xmax, _) = pixels.iter().max_by(|(x1, _), (x2, _)| x1.cmp(x2)).unwrap();
+    let (_, ymin) = pixels.iter().min_by(|(_, y1), (_, y2)| y1.cmp(y2)).unwrap();
+    let (_, ymax) = pixels.iter().max_by(|(_, y1), (_, y2)| y1.cmp(y2)).unwrap();
+
+    ((*xmin, *xmax), (*ymin, *ymax))
 }
 
 fn default_void(algo: &Algo, i: usize) -> bool {
