@@ -5,7 +5,11 @@ class Input
     @raw = File.read(@path)
   end
 
-  def split
-    @raw.split("\n")
+  def split(cleanup = false)
+    lines = @raw.split("\n")
+
+    return lines unless cleanup
+
+    lines.reject { |line| line.empty? }
   end
 end
