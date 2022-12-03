@@ -4,13 +4,13 @@ module Day02
   def self.part1
     input = Input.new("../input/in")
 
-    input.split(cleanup: true).map { |line| Game.from_play_input(line).score }.sum
+    input.split(cleanup: true).sum { |line| Game.from_play_input(line).score }
   end
 
   def self.part2
     input = Input.new("../input/in")
 
-    input.split(cleanup: true).map { |line| Game.from_outcome_input(line).score }.sum
+    input.split(cleanup: true).sum { |line| Game.from_outcome_input(line).score }
   end
 end
 
