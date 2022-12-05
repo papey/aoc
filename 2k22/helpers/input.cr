@@ -6,10 +6,6 @@ class Input
   end
 
   def split(cleanup = false)
-    lines = @raw.split("\n")
-
-    return lines unless cleanup
-
-    lines.reject { |line| line.empty? }
+    @raw.split("\n", remove_empty: cleanup)
   end
 end
