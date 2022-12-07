@@ -4,7 +4,7 @@ module Day03
   def self.part1
     input = Input.new("../input/in")
 
-    input.split(cleanup: true).sum do |rucksack|
+    input.lines(cleanup: true).sum do |rucksack|
       badge = rucksack.chars.each_slice(rucksack.size // 2).reduce { |common, part| common & part }.first
       priority(badge)
     end
@@ -13,7 +13,7 @@ module Day03
   def self.part2
     input = Input.new("../input/in")
 
-    input.split(cleanup: true).each_slice(3).sum do |group|
+    input.lines(cleanup: true).each_slice(3).sum do |group|
       badge = group.map(&.chars).reduce() { |common, rucksack| common & rucksack }.first
       priority(badge)
     end

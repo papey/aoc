@@ -7,13 +7,13 @@ module Day06
   def self.part1
     input = Input.new("../input/in")
 
-    solve(input.split.first.each_char, PKT_SIZE)
+    solve(input.lines.first.each_char, PKT_SIZE)
   end
 
   def self.part2
     input = Input.new("../input/in")
 
-    solve(input.split.first.each_char, MSG_SIZE)
+    solve(input.lines.first.each_char, MSG_SIZE)
   end
 
   def self.solve(dataframe, size)

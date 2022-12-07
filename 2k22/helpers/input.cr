@@ -5,7 +5,7 @@ class Input
     @raw = File.read(@path)
   end
 
-  def split(cleanup = false)
+  def lines(cleanup = false)
     @raw.split("\n", remove_empty: cleanup)
   end
 end

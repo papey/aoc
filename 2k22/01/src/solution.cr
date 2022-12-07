@@ -4,13 +4,13 @@ module Day01
   def self.part1
     input = Input.new("../input/in")
 
-    by_elves(input.split).first
+    by_elves(input.lines).first
   end
 
   def self.part2
     input = Input.new("../input/in")
 
-    by_elves(input.split)[..2].sum
+    by_elves(input.lines)[..2].sum
   end
 
   def self.by_elves(entries)
