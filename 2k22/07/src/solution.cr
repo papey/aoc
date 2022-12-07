@@ -2,7 +2,7 @@ require "../../helpers/input"
 
 module Day07
   def self.part1
-    lines = Input.new("../input/in").split(cleanup: true)
+    lines = Input.new("../input/in").lines(cleanup: true)
     sizes = [] of Int32
 
     explore(lines, sizes)
@@ -14,7 +14,7 @@ module Day07
   DISK_NEEDED = 30000000
 
   def self.part2
-    lines = Input.new("../input/in").split(cleanup: true)
+    lines = Input.new("../input/in").lines(cleanup: true)
     sizes = [] of Int32
 
     used = explore(lines, sizes)
