@@ -19,7 +19,8 @@ module Day07
 
     used = explore(lines, sizes)
 
-    sizes.select(&.>(DISK_NEEDED - (DISK_SIZE - used))).min
+    threshold = DISK_NEEDED - (DISK_SIZE - used)
+    sizes.select(&.>(threshold)).min
   end
 
   def self.explore(lines, sizes)
