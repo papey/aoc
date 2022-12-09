@@ -1,6 +1,6 @@
 require "../../helpers/input"
 
-module Day07
+module Day08
   def self.part1
     input = Input.new("../input/in")
 
@@ -45,6 +45,6 @@ module Day07
   end
 end
 
-puts "Part 1 : #{Day07.part1}"
+puts "Part 1 : #{Day08.part1}"
 
-puts "Part 2 : #{Day07.part2}"
+puts "Part 2 : #{Day08.part2}"
