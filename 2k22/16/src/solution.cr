@@ -12,7 +12,20 @@ module Day16
   end
 
   def self.part2
+    valves = parse(Input.new("../input/in"))
+
+    distances = distances(valves)
+
+    active_valves = valves.reject { |valve| valve.flow == 0 }
+
+    path_candidates = paths("AA", active_valves, 26, distances, 0, "AA")
+      .map { |(pressure, path)| {pressure, path.split("-").reject { |room| room == STARTING_ROOM }.to_set} }
+
+    # takes forever but meh, it works
+    🏃‍♂️🐘(path_candidates)
   end
+
+  STARTING_ROOM = "AA"
 
   def self.distances(valves)
     distances = valves.each_with_object(Hash(String, Hash(String, Int32)).new(initial_capacity: valves.size)) do |src, accumulator|
@@ -54,6 +67,22 @@ module Day16
     end
 
     return _paths
+  end
+
+  def self.🏃‍♂️🐘(path_candidates)
+    max_pressure = Int32::MIN
+
+    (0...path_candidates.size).each do |p1|
+      (p1 + 1...path_candidates.size).each do |p2|
+        next if p1 > p2
+
+        next if path_candidates[p1][1].intersects?(path_candidates[p2][1])
+
+        max_pressure = {max_pressure, path_candidates[p1][0] + path_candidates[p2][0]}.max
+      end
+    end
+
+    max_pressure
   end
 
   INPUT_REGEX = /Valve ([A-Z]+) has flow rate=(\d+); tunnel[s]? lead[s]? to valve[s]? ([A-Z, ]+)/
