@@ -8,6 +8,9 @@ module Day19
   end
 
   def self.part2
+    blueprints = parse(Input.new("../input/in"))
+
+    blueprints[0...3].map { |blueprint| explore(blueprint, 32) }.product
   end
 
   def self.parse(input)
@@ -36,13 +39,17 @@ module Day19
       }
     end
 
-    minutes.times do |min|
+    (minutes - 1).downto(0).each do |min|
       next_queue = [] of {Resources, Resources}
+
+      max = queue.max_of { |(resources, _robots)| resources[Kind::Geode] }
 
       queue.each do |resources, robots|
         next if discovered.includes?({resources, robots})
 
         discovered << {resources, robots}
+
+        next if max > resources[Kind::Geode] + robots[Kind::Geode] * min + (0..min).sum
 
         if blueprint.buildable?(Kind::Geode, resources)
           next_queue << {
