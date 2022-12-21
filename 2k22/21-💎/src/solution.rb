@@ -8,16 +8,54 @@ module Day21
   end
 
   def self.part2
+    expressions = parse
+
+    a = build_expression(expressions, expressions[:root][0])
+    b = build_expression(expressions, expressions[:root][2])
+
+    a.is_a?(Integer) ? solve(b, a) : solve(a, b)
   end
 
-  def self.compute(vars, monkey)
-    case vars[monkey]
-    in [:value, v]
-      v
-    in [:expression, exp]
-      a, method, b = exp
+  def self.compute(expressions, monkey)
+    case expressions[monkey]
+    in [a, method, b]
+      compute(expressions, a).method(method).call(compute(expressions, b))
+    in value
+      value
+    end
+  end
 
-      compute(vars, a).method(method).call(compute(vars, b))
+  def self.build_expression(expressions, key)
+    return key if key == :humn
+
+    case expressions[key]
+    in [a, method, b]
+      va = build_expression(expressions, a)
+      vb = build_expression(expressions, b)
+      if va.is_a?(Integer) && vb.is_a?(Integer)
+        va.method(method).call(vb)
+      else
+        [va, method, vb]
+      end
+    in value
+      value
+    end
+  end
+
+  def self.solve(expression, value)
+    return value if expression == :humn
+
+    a, method, b = expression
+
+    case method
+    when :+
+      a.is_a?(Integer) ? solve(b, value - a) : solve(a, value - b)
+    when :-
+      a.is_a?(Integer) ? solve(b, a - value) : solve(a, b + value)
+    when :*
+      a.is_a?(Integer) ? solve(b, value / a) : solve(a, value / b)
+    when :/
+      a.is_a?(Integer) ? solve(b, a / value) : solve(a, b * value)
     end
   end
 
@@ -28,9 +66,9 @@ module Day21
       .each_with_object({}) do |line, acc|
         name, expression = line.split(": ")
         if /\d+/.match(expression)
-          acc[name.to_sym] = [:value, expression.to_i]
+          acc[name.to_sym] = expression.to_i
         else
-          acc[name.to_sym] = [:expression, expression.split.map(&:to_sym)]
+          acc[name.to_sym] = expression.split.map(&:to_sym)
         end
       end
   end
