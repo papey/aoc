@@ -2,7 +2,7 @@ package d01
 
 import input.read
 
-fun main(args: Array<String>) {
+fun main() {
     println("Part 1: ${part1(read("01.txt"))}")
     println("Part 2: ${part2(read("01.txt"))}")
 }

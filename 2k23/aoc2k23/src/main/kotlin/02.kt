@@ -3,7 +3,7 @@ package d02
 import input.read
 import java.util.*
 
-fun main(args: Array<String>) {
+fun main() {
     println("Part 1: ${part1(read("02.txt"))}")
     println("Part 2: ${part2(read("02.txt"))}")
 }
