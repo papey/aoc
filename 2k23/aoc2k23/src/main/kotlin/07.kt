@@ -54,7 +54,7 @@ class Hand(line: String) {
         }
     }
 
-    enum class TypeP1 {
+    enum class Type {
         HighCard,
         OnePair,
         TwoPair,
@@ -64,15 +64,12 @@ class Hand(line: String) {
         FiveOfKind;
 
         companion object {
-            fun fromHand(hand: List<CardP1>): TypeP1 {
-                val byValue = hand.groupBy { it.value }.mapValues { it.value.size }
-                val counts = byValue.values.sortedByDescending { it }
-
-                return when (counts.first()) {
+            private fun computeType(top1Count: Int, top2Count: Int): Type {
+                return when (top1Count) {
                     5 -> FiveOfKind
                     4 -> FourOfKind
                     3 -> {
-                        if (counts[1] == 2) {
+                        if (top2Count == 2) {
                             FullHouse
                         } else {
                             ThreeOfKind
@@ -80,7 +77,7 @@ class Hand(line: String) {
                     }
 
                     2 -> {
-                        if (counts[1] == 2) {
+                        if (top2Count == 2) {
                             TwoPair
                         } else {
                             OnePair
@@ -89,67 +86,44 @@ class Hand(line: String) {
 
                     else -> HighCard
                 }
+
             }
-        }
-    }
 
-    enum class TypeP2 {
-        HighCard,
-        OnePair,
-        TwoPair,
-        ThreeOfKind,
-        FullHouse,
-        FourOfKind,
-        FiveOfKind;
+            fun fromHandP1(hand: List<CardP1>): Type {
+                val byValue = hand.groupBy { it.value }.mapValues { it.value.size }
+                val counts = byValue.values.sortedByDescending { it }
 
-        companion object {
-            fun fromHand(hand: List<CardP2>): TypeP2 {
+                return computeType(counts[0], counts.getOrElse(1) { _ -> 0 })
+            }
+
+            fun fromHandP2(hand: List<CardP2>): Type {
                 val byValue = hand.groupBy { it.value }.mapValues { it.value.size }
                 val counts = byValue.filter { it.key != CardP2.J.value }.values.sortedByDescending { it }
                 val jokers = hand.count { it.value == CardP2.J.value }
 
                 if (jokers == 5) {
-                    return FiveOfKind
+                    return Type.FiveOfKind
                 }
 
-                return when (counts.first() + jokers) {
-                    5 -> FiveOfKind
-                    4 -> FourOfKind
-                    3 -> {
-                        if (counts[1] == 2) {
-                            FullHouse
-                        } else {
-                            ThreeOfKind
-                        }
-                    }
-
-                    2 -> {
-                        if (counts[1] == 2) {
-                            TwoPair
-                        } else {
-                            OnePair
-                        }
-                    }
-
-                    else -> HighCard
-                }
+                return computeType(counts[0] + jokers, counts.getOrElse(1) { _ -> 0 })
             }
         }
     }
 
+
     val cardsP1: List<CardP1>
     val cardsP2: List<CardP2>
 
-    val typeP1: TypeP1
-    val typeP2: TypeP2
+    val typeP1: Type
+    val typeP2: Type
 
     val bid: Int
 
     init {
         cardsP1 = line.split(" ").first().toCharArray().map { CardP1.fromChar(it)!! }
         cardsP2 = line.split(" ").first().toCharArray().map { CardP2.fromChar(it)!! }
-        typeP1 = TypeP1.fromHand(cardsP1)
-        typeP2 = TypeP2.fromHand(cardsP2)
+        typeP1 = Type.fromHandP1(cardsP1)
+        typeP2 = Type.fromHandP2(cardsP2)
         bid = line.split(" ").drop(1).first().toInt()
     }
 
