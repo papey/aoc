@@ -41,8 +41,8 @@ fun part2(workflows: Map<String, Workflow>): Long {
     )
 }
 
-fun combinations(id: String, workflows: Map<String, Workflow>, ranges: Map<Rating.RatingKey, IntRange>): Long {
-    val res: Long = when (id) {
+fun combinations(id: String, workflows: Map<String, Workflow>, ranges: Map<Rating.RatingKey, IntRange>): Long =
+    when (id) {
         "R" -> 0L
         "A" -> {
             ranges.values.map { it.count().toLong() }.reduce(Long::times)
@@ -70,7 +70,7 @@ fun combinations(id: String, workflows: Map<String, Workflow>, ranges: Map<Ratin
 
                             Workflow.ConditionalStep.Operand.MoreThan -> {
                                 val currentRange = newRanges[step.source]!!
-                                newRanges[step.source] = step.value + 1.. currentRange.last
+                                newRanges[step.source] = step.value + 1..currentRange.last
 
                                 combinations(step.target(), workflows, newRanges).also {
                                     newRanges[step.source] = currentRange.first..step.value
@@ -87,9 +87,6 @@ fun combinations(id: String, workflows: Map<String, Workflow>, ranges: Map<Ratin
             }
         }
     }
-
-    return res
-}
 
 
 class Rating(input: String) {
