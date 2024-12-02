@@ -1,6 +1,6 @@
-defmodule D1 do
+defmodule D01 do
   def p1 do
-    Parser.parse("inputs/d1.txt")
+    Parser.parse("inputs/d01.txt")
     |> Enum.map(&String.split(&1, ~r/\s+/))
     |> Enum.map(fn [a, b] -> {String.to_integer(a), String.to_integer(b)} end)
     |> Enum.unzip()

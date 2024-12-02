@@ -10,8 +10,8 @@ Each day has 2 part p1 and p2
 
 ```sh
 iex -S mix
-D1.p1
-DX.py
+D01.p1
+DXX.py
 ```
 
 Happy Coding !
