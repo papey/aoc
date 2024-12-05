@@ -1,7 +1,7 @@
 defmodule Parser do
-  def parse(filename) do
+  def parse(filename, by \\ "\n") do
     File.read!(filename)
-    |> String.split("\n", trim: true)
+    |> String.split(by, trim: true)
     |> Enum.map(&String.trim/1)
   end
 
