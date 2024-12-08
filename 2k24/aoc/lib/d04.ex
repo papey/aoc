@@ -1,13 +1,13 @@
 defmodule D04 do
   def p1 do
     Parser.parse("inputs/d04.txt")
-    |> then(&as_map/1)
+    |> then(&Parser.as_map/1)
     |> then(&count_xmas/1)
   end
 
   def p2 do
     Parser.parse("inputs/d04.txt")
-    |> then(&as_map/1)
+    |> then(&Parser.as_map/1)
     |> then(&count_Xmas/1)
   end
 
@@ -49,18 +49,5 @@ defmodule D04 do
         _ -> acc
       end
     end)
-  end
-
-  defp as_map(input) do
-    input
-    |> Enum.with_index()
-    |> Enum.into(%{}, fn {l, y} ->
-      {y,
-       l
-       |> String.split("", trim: true)
-       |> Enum.with_index()
-       |> Enum.into(%{}, fn {char, x} -> {x, char} end)}
-    end)
-    |> Map.new()
   end
 end

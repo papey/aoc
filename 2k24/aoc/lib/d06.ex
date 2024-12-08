@@ -5,7 +5,7 @@ defmodule D06 do
   def p1 do
     map =
       Parser.parse("inputs/d06_sample.txt")
-      |> then(&as_map/1)
+      |> then(&Parser.as_map/1)
 
     patrol(map, find_gard(map)) |> MapSet.size()
   end
@@ -13,7 +13,7 @@ defmodule D06 do
   def p2 do
     map =
       Parser.parse("inputs/d06.txt")
-      |> then(&as_map/1)
+      |> then(&Parser.as_map/1)
 
     gard_position = find_gard(map)
 
@@ -97,18 +97,5 @@ defmodule D06 do
         {x, _} -> {y, x}
       end
     end)
-  end
-
-  defp as_map(input) do
-    input
-    |> Enum.with_index()
-    |> Enum.into(%{}, fn {l, y} ->
-      {y,
-       l
-       |> String.split("", trim: true)
-       |> Enum.with_index()
-       |> Enum.into(%{}, fn {char, x} -> {x, char} end)}
-    end)
-    |> Map.new()
   end
 end
