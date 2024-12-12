@@ -22,6 +22,33 @@ defmodule D12 do
   end
 
   def p2 do
+    map =
+      Parser.parse("inputs/d12.txt")
+      |> Parser.as_map()
+
+    discover(map)
+    |> Enum.map(fn {id, set} ->
+      label = String.split(id, "_") |> List.first()
+
+      delimiters =
+        Enum.reduce(set, MapSet.new(), fn {y, x}, delimiters ->
+          @directions
+          |> Enum.map(fn {dy, dx} -> {{dy, dx}, {y + dy, x + dx}} end)
+          |> Enum.filter(fn {_, {ny, nx}} -> map[ny][nx] != label end)
+          |> Enum.filter(fn {_, {ny, nx}} ->
+            Enum.any?(@directions, fn {ddy, ddx} -> map[ddy + ny][nx + ddx] != label end)
+          end)
+          |> Enum.reduce(delimiters, fn {dir, {ny, nx}}, delimiters ->
+            MapSet.put(delimiters, {dir, {ny, nx}})
+          end)
+        end)
+
+      IO.inspect(delimiters, label: label)
+      IO.inspect(MapSet.size(delimiters), label: "size")
+
+      MapSet.size(set)
+    end)
+    |> Enum.sum()
   end
 
   defp discover(map) do
