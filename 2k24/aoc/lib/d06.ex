@@ -5,7 +5,7 @@ defmodule D06 do
   def p1 do
     map =
       Parser.parse("inputs/d06_sample.txt")
-      |> then(&Parser.as_map/1)
+      |> Parser.as_map()
 
     patrol(map, find_gard(map)) |> MapSet.size()
   end
@@ -13,7 +13,7 @@ defmodule D06 do
   def p2 do
     map =
       Parser.parse("inputs/d06.txt")
-      |> then(&Parser.as_map/1)
+      |> Parser.as_map()
 
     gard_position = find_gard(map)
 

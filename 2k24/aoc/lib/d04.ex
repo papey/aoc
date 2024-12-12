@@ -1,14 +1,14 @@
 defmodule D04 do
   def p1 do
     Parser.parse("inputs/d04.txt")
-    |> then(&Parser.as_map/1)
-    |> then(&count_xmas/1)
+    |> Parser.as_map()
+    |> count_xmas()
   end
 
   def p2 do
     Parser.parse("inputs/d04.txt")
-    |> then(&Parser.as_map/1)
-    |> then(&count_Xmas/1)
+    |> Parser.as_map()
+    |> count_Xmas()
   end
 
   defp count_Xmas(map) do

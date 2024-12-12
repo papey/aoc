@@ -7,8 +7,8 @@ defmodule D10 do
   def p1 do
     map =
       Parser.parse("inputs/d10.txt")
-      |> then(&Parser.as_map/1)
-      |> then(&to_heights/1)
+      |> Parser.as_map()
+      |> to_heights()
 
     map
     |> starts()
@@ -23,8 +23,8 @@ defmodule D10 do
   def p2 do
     map =
       Parser.parse("inputs/d10.txt")
-      |> then(&Parser.as_map/1)
-      |> then(&to_heights/1)
+      |> Parser.as_map()
+      |> to_heights()
 
     map
     |> starts()

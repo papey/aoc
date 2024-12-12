@@ -1,7 +1,7 @@
 defmodule D07 do
   def p1 do
     Parser.parse("inputs/d07.txt")
-    |> then(&extract/1)
+    |> extract()
     |> Enum.filter(fn [test | numbers] ->
       calibrated?(test, numbers)
     end)
@@ -11,7 +11,7 @@ defmodule D07 do
 
   def p2 do
     Parser.parse("inputs/d07.txt")
-    |> then(&extract/1)
+    |> extract()
     |> Enum.filter(fn [test | numbers] ->
       calibrated?(test, numbers, true)
     end)

@@ -2,7 +2,7 @@ defmodule D08 do
   def p1 do
     map =
       Parser.parse("inputs/d08.txt")
-      |> then(&Parser.as_map/1)
+      |> Parser.as_map()
 
     {h, l} = size(map)
 
@@ -21,7 +21,7 @@ defmodule D08 do
   def p2 do
     map =
       Parser.parse("inputs/d08.txt")
-      |> then(&Parser.as_map/1)
+      |> Parser.as_map()
 
     h = map_size(map)
     l = map_size(map[0])

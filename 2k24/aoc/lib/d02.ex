@@ -1,14 +1,14 @@
 defmodule D02 do
   def p1 do
     Parser.parse("inputs/d02.txt")
-    |> then(&Parser.into_integer_values/1)
+    |> Parser.into_integer_values()
     |> Enum.filter(&safe?(&1))
     |> Enum.count()
   end
 
   def p2 do
     Parser.parse("inputs/d2.txt")
-    |> then(&Parser.into_integer_values/1)
+    |> Parser.into_integer_values()
     |> Enum.filter(&safe?(&1, :tolerance))
     |> Enum.count()
   end
