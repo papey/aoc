@@ -27,26 +27,41 @@ defmodule D12 do
       |> Parser.as_map()
 
     discover(map)
-    |> Enum.map(fn {id, set} ->
-      label = String.split(id, "_") |> List.first()
+    |> Enum.map(fn {_, set} ->
+      sides =
+        Enum.reduce(set, 0, fn {y, x}, acc ->
+          current = map[y][x]
 
-      delimiters =
-        Enum.reduce(set, MapSet.new(), fn {y, x}, delimiters ->
-          @directions
-          |> Enum.map(fn {dy, dx} -> {{dy, dx}, {y + dy, x + dx}} end)
-          |> Enum.filter(fn {_, {ny, nx}} -> map[ny][nx] != label end)
-          |> Enum.filter(fn {_, {ny, nx}} ->
-            Enum.any?(@directions, fn {ddy, ddx} -> map[ddy + ny][nx + ddx] != label end)
-          end)
-          |> Enum.reduce(delimiters, fn {dir, {ny, nx}}, delimiters ->
-            MapSet.put(delimiters, {dir, {ny, nx}})
-          end)
+          neighbors = %{
+            left: map[y][x - 1],
+            right: map[y][x + 1],
+            top: map[y - 1][x],
+            top_left: map[y - 1][x - 1],
+            top_right: map[y - 1][x + 1],
+            bottom: map[y + 1][x],
+            bottom_left: map[y + 1][x - 1],
+            bottom_right: map[y + 1][x + 1]
+          }
+
+          corners = [
+            (neighbors.top != current && neighbors.left != current) ||
+              (neighbors.top_left != current && neighbors.left == current &&
+                 neighbors.top == current),
+            (neighbors.top != current && neighbors.right != current) ||
+              (neighbors.top_right != current && neighbors.right == current &&
+                 neighbors.top == current),
+            (neighbors.bottom != current && neighbors.left != current) ||
+              (neighbors.bottom_left != current && neighbors.left == current &&
+                 neighbors.bottom == current),
+            (neighbors.bottom != current && neighbors.right != current) ||
+              (neighbors.bottom_right != current && neighbors.right == current &&
+                 neighbors.bottom == current)
+          ]
+
+          acc + Enum.count(corners, & &1)
         end)
 
-      IO.inspect(delimiters, label: label)
-      IO.inspect(MapSet.size(delimiters), label: "size")
-
-      MapSet.size(set)
+      MapSet.size(set) * sides
     end)
     |> Enum.sum()
   end
