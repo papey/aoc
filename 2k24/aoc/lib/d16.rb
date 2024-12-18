@@ -2,11 +2,13 @@
 # frozen_string_literal: true
 
 def parse
-  maze = File.readlines('../inputs/d16.txt').map(&:chomp).each_with_index.each_with_object(Hash.new('#')) do |(line, index), acc|
+  maze = File.readlines('../inputs/d16.txt').map(&:chomp)
+             .each_with_index.each_with_object(Hash.new('#')) do |(line, index), acc|
     line.chars.each_with_index { |char, i| acc[[index, i]] = char }
   end
 
-  start, exit = maze.find { |_, v| v == 'S' }, maze.find { |_, v| v == 'E' }
+  start = maze.find { |_, v| v == 'S' }
+  exit = maze.find { |_, v| v == 'E' }
 
   [start.first, exit.first, maze]
 end
@@ -24,6 +26,7 @@ def solve(start, exit, maze)
 
     next if score > seen[[pos, dir]] || score > best_score
 
+    seen[[pos, dir]] = score
 
     if pos == exit
       if score < best_score
@@ -32,6 +35,8 @@ def solve(start, exit, maze)
       end
 
       seats.merge(path) if score == best_score
+
+      next
     end
 
     dy, dx = dir
@@ -44,6 +49,8 @@ def solve(start, exit, maze)
 
     queue.push([[y, x], [dx, dy], score + 1000, path.clone])
     queue.push([[y, x], [-dx, -dy], score + 1000, path.clone])
+
+    queue.sort_by! { |_, _, s, _| s }
   end
 
   [best_score, seats.size - 1]
