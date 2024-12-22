@@ -1,10 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'set'
+require "set"
 
 def parse
-  File.readlines('../inputs/d18.txt').map(&:chomp).map { |line| line.split(',') }.map { |elem| elem.map(&:to_i) }
+  File
+    .readlines("../inputs/d18.txt")
+    .map(&:chomp)
+    .map { |line| line.split(",") }
+    .map { |elem| elem.map(&:to_i) }
 end
 
 MAXY = MAXX = 71
@@ -35,11 +39,9 @@ def p2
 end
 
 def grid(corrupted, l)
-  grid = Array.new(MAXY) { Array.new(MAXX, '.') }
+  grid = Array.new(MAXY) { Array.new(MAXX, ".") }
 
-  corrupted[0, l].each do |x, y|
-    grid[y][x] = '#'
-  end
+  corrupted[0, l].each { |x, y| grid[y][x] = "#" }
 
   grid
 end
@@ -61,7 +63,7 @@ def path(corrupted, l)
       nx = x + dx
 
       in_bound = nx >= 0 && nx < MAXX && ny >= 0 && ny < MAXY
-      if in_bound && grid[ny][nx] == '.' && !seen.include?([ny, nx])
+      if in_bound && grid[ny][nx] == "." && !seen.include?([ny, nx])
         seen.add([ny, nx])
         queue.push([[ny, nx], steps + 1])
       end

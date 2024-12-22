@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'set'
+require "set"
 
 def parse
-  File.readlines('../inputs/d20.txt').map(&:chomp).map(&:chars)
+  File.readlines("../inputs/d20.txt").map(&:chomp).map(&:chars)
 end
 
 def p1
@@ -30,19 +30,24 @@ end
 VALUEABLE_CHEAT = 100
 
 def cheat(path, cheat_time)
-  path.each_with_index.reduce(0) do |acc, ((cy, cx), starts_cheat_at)|
-    path[starts_cheat_at + 1..].each.with_index(1).reduce(acc) do |inner_acc, ((ty, tx), savings)|
-      dx = (cx - tx).abs
-      dy = (cy - ty).abs
-      delta = dx + dy
+  path
+    .each_with_index
+    .reduce(0) do |acc, ((cy, cx), starts_cheat_at)|
+      path[starts_cheat_at + 1..]
+        .each
+        .with_index(1)
+        .reduce(acc) do |inner_acc, ((ty, tx), savings)|
+          dx = (cx - tx).abs
+          dy = (cy - ty).abs
+          delta = dx + dy
 
-      if delta <= cheat_time && savings - delta >= VALUEABLE_CHEAT
-        inner_acc + 1
-      else
-        inner_acc
-      end
+          if delta <= cheat_time && savings - delta >= VALUEABLE_CHEAT
+            inner_acc + 1
+          else
+            inner_acc
+          end
+        end
     end
-  end
 end
 
 def interests(grid)
@@ -51,8 +56,8 @@ def interests(grid)
 
   grid.each_with_index do |row, y|
     row.each_with_index do |cell, x|
-      start = [y, x] if cell == 'S'
-      exit = [y, x] if cell == 'E'
+      start = [y, x] if cell == "S"
+      exit = [y, x] if cell == "E"
     end
   end
 
@@ -66,14 +71,14 @@ def path(grid, start, exit)
   until queue.empty?
     (y, x), steps, path = queue.shift
 
-    return [steps, path] if exit == [y, x]
+    return steps, path if exit == [y, x]
 
     [[1, 0], [0, 1], [-1, 0], [0, -1]].each do |dy, dx|
       ny = y + dy
       nx = x + dx
 
       in_bound = grid[ny] && !grid[ny][nx].nil?
-      if in_bound && grid[ny][nx] != '#' && !seen.include?([ny, nx])
+      if in_bound && grid[ny][nx] != "#" && !seen.include?([ny, nx])
         seen.add([ny, nx])
         queue.push([[ny, nx], steps + 1, path.clone << [ny, nx]])
       end

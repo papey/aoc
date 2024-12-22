@@ -33,7 +33,10 @@ def p2
     state = bound[key]
     required_space = state[:len]
 
-    index, space = free.select { |k, v| k < state[:index] && v >= required_space }.min_by { |k, _v| k }
+    index, space =
+      free
+        .select { |k, v| k < state[:index] && v >= required_space }
+        .min_by { |k, _v| k }
 
     # no defrag possible
     if index.nil?
@@ -47,16 +50,19 @@ def p2
     # update and track new free space
     free[bound[key][:index]] = required_space
 
-    free[index + required_space] = space - required_space if space != required_space
+    free[index + required_space] = space - required_space if space !=
+      required_space
     free.delete(index)
   end
 
   mem = []
 
-  defrag.sort_by { |_k, v| v[:index] }.each do |k, v|
-    mem += [nil] * (v[:index] - mem.length) unless v[:index] == mem.length
-    mem += [k] * v[:len]
-  end
+  defrag
+    .sort_by { |_k, v| v[:index] }
+    .each do |k, v|
+      mem += [nil] * (v[:index] - mem.length) unless v[:index] == mem.length
+      mem += [k] * v[:len]
+    end
 
   hash(mem)
 end
@@ -91,17 +97,18 @@ def hash(mem)
 end
 
 def to_memory(raw_disk)
-  raw_disk.each_char.map(&:to_i).each_with_index.reduce([[], 0]) do |(acc, id), (v, i)|
-    if i.even?
-      [acc + [id] * v, id + 1]
-    else
-      [acc + [nil] * v, id]
+  raw_disk
+    .each_char
+    .map(&:to_i)
+    .each_with_index
+    .reduce([[], 0]) do |(acc, id), (v, i)|
+      i.even? ? [acc + [id] * v, id + 1] : [acc + [nil] * v, id]
     end
-  end.first
+    .first
 end
 
 def parse
-  File.open('../inputs/d09.txt').readlines.map(&:chomp).first
+  File.open("../inputs/d09.txt").readlines.map(&:chomp).first
 end
 
 puts ["p1", p1].inspect

@@ -2,13 +2,17 @@
 # frozen_string_literal: true
 
 def parse
-  maze = File.readlines('../inputs/d16.txt').map(&:chomp)
-             .each_with_index.each_with_object(Hash.new('#')) do |(line, index), acc|
-    line.chars.each_with_index { |char, i| acc[[index, i]] = char }
-  end
+  maze =
+    File
+      .readlines("../inputs/d16.txt")
+      .map(&:chomp)
+      .each_with_index
+      .each_with_object(Hash.new("#")) do |(line, index), acc|
+        line.chars.each_with_index { |char, i| acc[[index, i]] = char }
+      end
 
-  start = maze.find { |_, v| v == 'S' }
-  exit = maze.find { |_, v| v == 'E' }
+  start = maze.find { |_, v| v == "S" }
+  exit = maze.find { |_, v| v == "E" }
 
   [start.first, exit.first, maze]
 end
@@ -41,7 +45,7 @@ def solve(start, exit, maze)
 
     dy, dx = dir
     y, x = pos
-    if maze[[y + dy, x + dx]] != '#'
+    if maze[[y + dy, x + dx]] != "#"
       p = path.clone
       p.add([y + dy, x + dx])
       queue.push([[y + dy, x + dx], dir, score + 1, p])
