@@ -12,8 +12,6 @@ DPAD = [[" ", "^", "A"], %w[< v >]]
 GRIDS = { npad: KEYPAD, dpad: DPAD }
 DIRS = { [1, 0] => "v", [-1, 0] => "^", [0, 1] => ">", [0, -1] => "<" }
 
-require "set"
-
 def paths(origin, target, name)
   with_caching(name, [origin, target]) do
     grid = GRIDS[name]
