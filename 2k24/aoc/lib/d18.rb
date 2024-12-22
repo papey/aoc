@@ -51,7 +51,7 @@ def path(corrupted, l)
   queue = [[[0, 0], 0]]
   seen = Set.new([[0, 0]])
 
-  while queue.length.positive?
+  until queue.empty?
     (y, x), steps = queue.shift
 
     return steps if exit == [y, x]

@@ -21,7 +21,7 @@ def solve(start, exit, maze)
 
   best_score = Float::INFINITY
 
-  while queue.length.positive?
+  until queue.empty?
     pos, dir, score, path = queue.shift
 
     next if score > seen[[pos, dir]] || score > best_score

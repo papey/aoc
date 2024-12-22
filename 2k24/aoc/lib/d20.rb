@@ -63,7 +63,7 @@ def path(grid, start, exit)
   queue = [[start, 0, [start]]]
   seen = Set.new([start])
 
-  while queue.length.positive?
+  until queue.empty?
     (y, x), steps, path = queue.shift
 
     return [steps, path] if exit == [y, x]
