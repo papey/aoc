@@ -93,7 +93,9 @@ defmodule D12 do
         Map.update(areas, id, MapSet.new([point]), fn set -> MapSet.put(set, point) end)
 
       @directions
-      |> Enum.filter(fn {dy, dx} -> map[y + dy][x + dx] != nil && map[y + dy][x + dx] == label end)
+      |> Enum.filter(fn {dy, dx} ->
+        map[y + dy][x + dx] != nil && map[y + dy][x + dx] == label
+      end)
       |> Enum.map(fn {dy, dx} -> {y + dy, x + dx} end)
       |> Enum.reduce({areas, visited}, fn pos, {areas, visited} ->
         discover(map, pos, id, areas, visited)
