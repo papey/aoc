@@ -1,4 +1,4 @@
-# 🎄🎅🎄 Advent Of Code, 2K23 edition 🎄🎅🎄
+# 🎄🎅🎄 Advent Of Code, 2K24 edition 🎄🎅🎄
 
 Here is a folder containing all my submissions for the [Advent of Code 2024](https://adventofcode.com/).
 
