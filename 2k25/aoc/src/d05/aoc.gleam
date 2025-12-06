@@ -1,7 +1,7 @@
-import gleam/order
-import gleam/io
 import gleam/int
+import gleam/io
 import gleam/list
+import gleam/order
 import gleam/result
 import gleam/string
 import simplifile
@@ -13,24 +13,23 @@ pub type Range {
 pub fn main() -> Nil {
   let #(ranges, ingredients) = parse("./inputs/d05.txt")
 
-  let p1 = list.filter(ingredients, fn(ing) {
-    list.any(ranges, fn(range) {
-      ing >= range.s && ing <= range.e
+  let p1 =
+    list.filter(ingredients, fn(ing) {
+      list.any(ranges, fn(range) { ing >= range.s && ing <= range.e })
     })
-  })
-  |> list.length
+    |> list.length
 
   io.println("p1: " <> int.to_string(p1))
 
-  let sorted = list.sort(ranges, fn(a, b) {
-    case int.compare(a.s, b.s) {
-      order.Eq -> int.compare(a.e, b.e)
-      other -> other
-    }
-  })
+  let sorted =
+    list.sort(ranges, fn(a, b) {
+      case int.compare(a.s, b.s) {
+        order.Eq -> int.compare(a.e, b.e)
+        other -> other
+      }
+    })
 
-
-  let assert [start, .._] = sorted
+  let assert [start, ..] = sorted
 
   // next_cursor = max(e1 + 1 [because inclusive], cursor): maybe we encouter a range that put cursor over current range
   // adjusted_start = max(s1, cursor): account for gaps between ranges
@@ -41,15 +40,16 @@ pub fn main() -> Nil {
   //                    |s3...e3|
   //                            |s4...e4|
   //                              |s5e5|
-  let p2 = list.fold(sorted, #(start.s, 0), fn(acc, range) {
-    let #(cursor, count) = acc
-    let Range(s, e) = range
+  let p2 =
+    list.fold(sorted, #(start.s, 0), fn(acc, range) {
+      let #(cursor, count) = acc
+      let Range(s, e) = range
 
-    let adjusted_start = int.max(s, cursor)
-    let next_cursor = int.max(cursor, e + 1)
-    let l = int.max(e - adjusted_start + 1, 0)
-    #(next_cursor, count + l)
-  })
+      let adjusted_start = int.max(s, cursor)
+      let next_cursor = int.max(cursor, e + 1)
+      let l = int.max(e - adjusted_start + 1, 0)
+      #(next_cursor, count + l)
+    })
 
   io.println("p2: " <> int.to_string(p2.1))
 }
